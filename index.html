@@ -1,298 +1,316 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KIRTI STUDIOS | Curating Worlds</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts -->
+    <meta name="description" content="A boutique publishing house for the avant-garde.">
+
+    <!-- 1. TYPOGRAPHY & ICONS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
-    
-    <!-- Phosphor Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Space+Grotesk:wght@300;400;500&family=Noto+Serif+Bengali:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-    <!-- GSAP for High-End Animation -->
+    <!-- 2. STYLING ENGINE (Tailwind) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: '#F7F5F0',
+                        ink: '#1a1a1a',
+                        lacquer: '#cf2e2e',
+                        charcoal: '#2a2a2a',
+                        paper: '#e8e6e1'
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Space Grotesk', 'sans-serif'],
+                        display: ['Cinzel', 'serif'],
+                        bengali: ['Noto Serif Bengali', 'serif'],
+                    },
+                    animation: {
+                        'spin-slow': 'spin 12s linear infinite',
+                    },
+                    screens: {
+                        'touch': {'raw': '(hover: none)'},
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- 3. ANIMATION ENGINE (GSAP + LENIS) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 
+    <!-- 4. CUSTOM STYLES -->
     <style>
-        :root {
-            --bg-cream: #F7F5F0;
-            --ink-black: #1a1a1a;
-            --seal-red: #cf2e2e;
-        }
-
-        body {
-            background-color: var(--bg-cream);
-            color: var(--ink-black);
-            font-family: 'Space Grotesk', sans-serif;
-            overflow-x: hidden;
-            cursor: none; /* Hiding default cursor for custom one */
-        }
-
-        h1, h2, h3, h4 {
-            font-family: 'Playfair Display', serif;
-        }
-
+        :root { --cursor-size: 8px; --cursor-outline-size: 40px; }
+        body { background-color: #F7F5F0; color: #1a1a1a; cursor: none; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        
         /* Custom Cursor */
-        .cursor-dot,
-        .cursor-outline {
-            position: fixed;
-            top: 0;
-            left: 0;
-            transform: translate(-50%, -50%);
-            border-radius: 50%;
-            z-index: 9999;
-            pointer-events: none;
+        #cursor-dot, #cursor-outline { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            transform: translate(-50%, -50%); 
+            border-radius: 50%; 
+            pointer-events: none; 
+            z-index: 9999; 
+            opacity: 0; /* Hidden initially, revealed by JS */
+            transition: opacity 0.3s ease;
         }
-
-        .cursor-dot {
-            width: 8px;
-            height: 8px;
-            background-color: var(--seal-red);
+        #cursor-dot { width: var(--cursor-size); height: var(--cursor-size); background-color: #cf2e2e; }
+        #cursor-outline { width: var(--cursor-outline-size); height: var(--cursor-outline-size); border: 1px solid #cf2e2e; transition: width 0.2s, height 0.2s, background-color 0.2s, opacity 0.3s ease; }
+        
+        /* Disable custom cursor on touch devices */
+        @media (hover: none) and (pointer: coarse) {
+            #cursor-dot, #cursor-outline { display: none !important; }
+            body { cursor: auto; }
         }
-
-        .cursor-outline {
-            width: 40px;
-            height: 40px;
-            border: 1px solid var(--seal-red);
-            transition: width 0.2s, height 0.2s;
-        }
-
-        /* Film Grain Texture */
+        
+        /* Grain Texture */
         .grain-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 90;
-            opacity: 0.05;
+            position: fixed; inset: 0; pointer-events: none; z-index: 90; opacity: 0.035; mix-blend-mode: multiply;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
-        /* Utilities */
-        .reveal-text {
-            clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
-        }
-
-        .hover-reveal-content {
+        /* Utility */
+        .clip-text { clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%); }
+        .font-bengali { font-family: 'Noto Serif Bengali', serif; line-height: 1.8; }
+        
+        /* Mind Map Elements */
+        .mm-line { transform-origin: top; transform: scaleY(0); will-change: transform; }
+        .mm-node { opacity: 0; transform: translateY(10px); will-change: transform, opacity; }
+        .mm-overlay { opacity: 0; visibility: hidden; }
+        
+        /* THE SPOTLIGHT EFFECT */
+        .reveal-circle {
             clip-path: circle(0% at 50% 50%);
-            transition: clip-path 0.6s cubic-bezier(0.77, 0, 0.175, 1);
+            will-change: clip-path;
+            transition: clip-path 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @media (hover: hover) {
+            .group:hover .reveal-circle { clip-path: circle(150% at 50% 50%); }
+        }
+        @media (hover: none) {
+            .reveal-circle .add-to-cart { opacity: 1; pointer-events: auto; }
         }
 
-        .group:hover .hover-reveal-content {
-            clip-path: circle(150% at 50% 50%);
-        }
-
-        /* Hide scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-cream);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #d1d1d1;
-            border-radius: 4px;
-        }
-
-        /* Prevent FOUC (Flash of Unstyled Content) for animations */
-        .scroll-reveal {
-            visibility: hidden;
-            opacity: 0;
-        }
-
-        /* Cart Item Animation */
-        @keyframes fadeInSlide {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        .cart-item-enter {
-            animation: fadeInSlide 0.4s ease-out forwards;
-        }
+        /* Collapsible Sections */
+        .collapsible-content { overflow: hidden; height: 0; opacity: 0; }
         
-        /* Mind Map Line Animation */
-        .group:hover .journey-line {
-            transform: scaleY(1);
-        }
-        
-        /* Node Reveal Delay */
-        .group:hover .journey-node-1 { transition-delay: 200ms; opacity: 1; transform: translateY(0); }
-        .group:hover .journey-node-2 { transition-delay: 400ms; opacity: 1; transform: translateY(0); }
-        .group:hover .journey-node-3 { transition-delay: 600ms; opacity: 1; transform: translateY(0); }
+        /* Cart Animations */
+        @keyframes fadeInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        .cart-item-enter { animation: fadeInRight 0.4s ease-out forwards; }
+
+        /* Custom Scrollbar */
+        #menu-overlay { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; } 
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0f0f0f; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cf2e2e; border-radius: 4px; }
     </style>
 </head>
-<body class="antialiased selection:bg-red-900 selection:text-white">
+<body class="antialiased selection:bg-lacquer selection:text-white">
 
-    <!-- Custom Cursor -->
-    <div class="cursor-dot hidden md:block"></div>
-    <div class="cursor-outline hidden md:block"></div>
-
-    <!-- Grain Overlay -->
+    <!-- CUSTOM CURSOR -->
+    <div id="cursor-dot"></div>
+    <div id="cursor-outline"></div>
     <div class="grain-overlay"></div>
 
-    <!-- Loader -->
-    <div id="loader" class="fixed inset-0 z-[100] bg-[#111] flex flex-col items-center justify-center text-[#F7F5F0]">
-        <div class="w-64 h-[2px] bg-[#333] mb-8 relative overflow-hidden">
-            <div id="loader-bar" class="absolute top-0 left-0 h-full bg-[#cf2e2e] w-0"></div>
+    <!-- LOADER -->
+    <div id="loader" class="fixed inset-0 z-[100] bg-ink flex flex-col items-center justify-center text-cream">
+        <div class="w-48 md:w-64 h-[2px] bg-[#333] mb-8 relative overflow-hidden rounded-full">
+            <div id="loader-bar" class="absolute top-0 left-0 h-full bg-lacquer w-0"></div>
         </div>
-        <h1 class="text-4xl md:text-6xl tracking-tighter opacity-0" id="loader-text">KIRTI STUDIOS</h1>
+        <div class="h-20 flex items-center justify-center overflow-hidden relative w-full px-4">
+            <h1 id="loader-text" class="text-3xl md:text-6xl font-serif tracking-tighter opacity-0 absolute w-full text-center">KIRTI STUDIOS</h1>
+        </div>
+        <p id="loader-sub" class="text-[10px] md:text-xs uppercase tracking-[0.3em] text-gray-500 mt-4 opacity-0">Curating Worlds</p>
     </div>
 
-    <!-- Floating Navigation -->
-    <nav class="fixed right-8 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-6 items-center mix-blend-difference text-[#F7F5F0]">
-        <button id="menu-btn" class="w-12 h-12 flex items-center justify-center rounded-full border border-white/20 hover:scale-110 transition-transform duration-300">
-            <i class="ph ph-list text-2xl"></i>
+    <!-- NAVIGATION -->
+    <nav class="fixed right-4 md:right-8 top-8 md:top-1/2 md:-translate-y-1/2 z-50 flex flex-row md:flex-col gap-4 md:gap-6 items-center mix-blend-difference text-cream">
+        <button id="menu-btn" class="group relative w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full border border-white/20 hover:scale-110 transition-transform duration-300 backdrop-blur-sm touch-manipulation">
+            <div class="absolute inset-0 rounded-full border border-white/60 scale-0 group-hover:scale-100 transition-transform"></div>
+            <i class="ph ph-list text-xl md:text-2xl"></i>
         </button>
-        <button id="cart-btn" class="w-12 h-12 flex items-center justify-center rounded-full border border-white/20 hover:scale-110 transition-transform duration-300 relative">
-            <i class="ph ph-shopping-bag text-2xl"></i>
-            <span id="cart-badge" class="absolute -top-1 -right-1 w-4 h-4 bg-[#cf2e2e] rounded-full text-[10px] flex items-center justify-center hidden">0</span>
+        <button id="cart-btn" class="group relative w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full border border-white/20 hover:scale-110 transition-transform duration-300 backdrop-blur-sm touch-manipulation">
+            <div class="absolute inset-0 rounded-full border border-white/60 scale-0 group-hover:scale-100 transition-transform"></div>
+            <i class="ph ph-shopping-bag text-xl md:text-2xl"></i>
+            <span id="cart-badge" class="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-lacquer text-[10px] flex items-center justify-center rounded-full hidden shadow-lg">0</span>
         </button>
     </nav>
 
-    <!-- Full Screen Menu Overlay -->
-    <div id="menu-overlay" class="fixed inset-0 bg-[#0f0f0f] z-[60] transform translate-y-full transition-transform duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] flex items-center justify-center">
-        <button id="menu-close" class="absolute top-8 right-8 text-white hover:rotate-90 transition-transform duration-300">
-            <i class="ph ph-x text-4xl"></i>
-        </button>
-        <div class="flex flex-col items-center space-y-6">
-            <a href="#hero" class="menu-link text-5xl md:text-7xl font-serif text-[#F7F5F0] hover:text-[#cf2e2e] transition-colors">Home</a>
-            <a href="#manifesto" class="menu-link text-5xl md:text-7xl font-serif text-[#F7F5F0] hover:text-[#cf2e2e] transition-colors">Manifesto</a>
-            <a href="#creators" class="menu-link text-5xl md:text-7xl font-serif text-[#F7F5F0] hover:text-[#cf2e2e] transition-colors">Creators</a>
-            <a href="#works" class="menu-link text-5xl md:text-7xl font-serif text-[#F7F5F0] hover:text-[#cf2e2e] transition-colors">Works</a>
-            <a href="#store" class="menu-link text-5xl md:text-7xl font-serif text-[#F7F5F0] hover:text-[#cf2e2e] transition-colors">Store</a>
+    <!-- FULL SCREEN MENU -->
+    <div id="menu-overlay" class="fixed inset-0 bg-[#0f0f0f] z-[60] transform translate-y-full overflow-y-auto custom-scrollbar" data-lenis-prevent>
+        <div class="min-h-screen flex flex-col items-center justify-center py-24 relative">
+            <button id="menu-close" class="fixed top-6 right-6 md:top-8 md:right-8 text-white hover:rotate-90 transition-transform duration-300 z-50 p-2 touch-manipulation"><i class="ph ph-x text-3xl md:text-4xl"></i></button>
+            <div class="flex flex-col items-center space-y-6 md:space-y-8 w-full">
+                <!-- Menu Links -->
+                <a href="#hero" class="menu-link opacity-0 text-3xl md:text-7xl font-serif text-cream hover:text-lacquer transition-colors tracking-tight p-2">Home</a>
+                <a href="#manifesto" class="menu-link opacity-0 text-3xl md:text-7xl font-serif text-cream hover:text-lacquer transition-colors tracking-tight p-2">Manifesto</a>
+                <a href="#creators" class="menu-link opacity-0 text-3xl md:text-7xl font-serif text-cream hover:text-lacquer transition-colors tracking-tight p-2">Creators</a>
+                <a href="#works" class="menu-link opacity-0 text-3xl md:text-7xl font-serif text-cream hover:text-lacquer transition-colors tracking-tight p-2">Works</a>
+                <a href="#reviews" class="menu-link opacity-0 text-3xl md:text-7xl font-serif text-cream hover:text-lacquer transition-colors tracking-tight p-2">Reviews</a>
+                <a href="#events" class="menu-link opacity-0 text-3xl md:text-7xl font-serif text-cream hover:text-lacquer transition-colors tracking-tight p-2">Events</a>
+                <a href="#store" class="menu-link opacity-0 text-3xl md:text-7xl font-serif text-cream hover:text-lacquer transition-colors tracking-tight p-2">Store</a>
+                <a href="#newsletter" class="menu-link opacity-0 text-3xl md:text-7xl font-serif text-cream hover:text-lacquer transition-colors tracking-tight p-2">Newsletter</a>
+            </div>
+            
+            <div class="mt-12 md:mt-20 text-gray-500 text-[10px] md:text-xs uppercase tracking-[0.2em] opacity-0 menu-footer">
+                © 2024 Kirti Studios
+            </div>
         </div>
     </div>
 
-    <!-- Cart Drawer (Fixed) -->
-    <div id="cart-drawer" class="fixed inset-y-0 right-0 w-full md:w-96 bg-white z-[70] shadow-2xl transform translate-x-full transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] text-[#1a1a1a]">
-        <div class="h-full flex flex-col p-8 relative z-20">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-2xl font-serif">Your Cart</h2>
-                <button id="cart-close" class="hover:rotate-90 transition-transform duration-300">
-                    <i class="ph ph-x text-2xl"></i>
-                </button>
+    <!-- CART DRAWER -->
+    <div id="cart-drawer" class="fixed inset-y-0 right-0 w-full md:w-96 bg-white z-[70] shadow-2xl transform translate-x-full text-ink flex flex-col" data-lenis-prevent>
+        <div class="p-6 md:p-8 flex justify-between items-center border-b border-gray-100">
+            <h2 class="text-xl md:text-2xl font-serif">Your Cart</h2>
+            <button id="cart-close" class="hover:rotate-90 transition-transform p-2 touch-manipulation"><i class="ph ph-x text-xl md:text-2xl"></i></button>
+        </div>
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 md:p-8 space-y-4">
+            <div id="cart-empty" class="h-full flex flex-col items-center justify-center text-gray-400 space-y-4">
+                <i class="ph ph-shopping-bag text-4xl md:text-5xl opacity-20"></i>
+                <p class="font-light tracking-wide text-sm">Your cart is empty.</p>
             </div>
-            
-            <div id="cart-items-container" class="flex-1 overflow-y-auto space-y-4">
-                <!-- Cart items will be injected here -->
-                <div id="cart-empty-state" class="h-full flex flex-col items-center justify-center text-gray-400 space-y-4">
-                    <i class="ph ph-shopping-bag text-5xl opacity-20"></i>
-                    <p class="font-light tracking-wide">Your cart is empty.</p>
-                </div>
+        </div>
+        <div class="p-6 md:p-8 border-t border-gray-100 bg-white">
+            <div class="flex justify-between text-lg md:text-xl font-bold mb-6 font-serif">
+                <span>Total</span>
+                <span id="cart-total">$0.00</span>
             </div>
-
-            <div class="pt-8 border-t border-gray-100">
-                <div class="flex justify-between text-xl font-bold mb-6 font-serif">
-                    <span>Total</span>
-                    <span id="cart-total">$0.00</span>
-                </div>
-                <button class="w-full bg-[#1a1a1a] text-white py-4 hover:bg-[#cf2e2e] transition-colors uppercase tracking-widest text-xs font-bold">
-                    Checkout
-                </button>
-            </div>
+            <button class="w-full bg-ink text-white py-4 hover:bg-lacquer transition-colors uppercase tracking-widest text-xs font-bold touch-manipulation">Checkout</button>
         </div>
     </div>
 
     <!-- MAIN CONTENT -->
     <main>
-        <!-- Hero Section -->
-        <section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden px-4 pt-20">
-            <!-- Background Kinetic Type -->
+        <!-- HERO -->
+        <section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden px-4 md:px-6">
+            <!-- Kinetic Background -->
             <div class="absolute inset-0 flex flex-col justify-between pointer-events-none select-none opacity-[0.03]">
-                <h1 class="text-[18vw] leading-none font-black text-center">KIRTI</h1>
-                <h1 class="text-[18vw] leading-none font-black text-center">STUDIOS</h1>
+                <h1 class="text-[20vw] leading-none font-black text-center text-ink">KIRTI</h1>
+                <h1 class="text-[20vw] leading-none font-black text-center text-ink">STUDIOS</h1>
             </div>
-
-            <div class="relative z-10 text-center space-y-8 max-w-4xl mx-auto">
-                <div class="hero-anim flex items-center justify-center gap-4 mb-6 opacity-0 translate-y-8">
-                    <span class="h-[1px] w-12 bg-[#cf2e2e]"></span>
-                    <span class="text-[#cf2e2e] uppercase tracking-[0.3em] text-xs font-bold">Est. 2024</span>
-                    <span class="h-[1px] w-12 bg-[#cf2e2e]"></span>
+            
+            <div class="relative z-10 text-center space-y-6 md:space-y-8 max-w-4xl mx-auto pt-20">
+                <div class="hero-anim flex items-center justify-center gap-4 mb-4 md:mb-6 opacity-0 translate-y-8">
+                    <span class="h-[1px] w-8 md:w-12 bg-lacquer"></span>
+                    <span class="text-lacquer uppercase tracking-[0.2em] text-[10px] md:text-xs font-bold">Est. 2024</span>
+                    <span class="h-[1px] w-8 md:w-12 bg-lacquer"></span>
                 </div>
-                
-                <h2 class="hero-anim text-6xl md:text-9xl font-serif text-[#1a1a1a] leading-[0.9] opacity-0 translate-y-8">
-                    We Weave Ink <br /> 
-                    <span class="italic font-light font-serif">Into Reality</span>
+                <h2 class="hero-anim text-4xl sm:text-5xl md:text-9xl font-serif text-ink leading-[1.1] md:leading-[0.9] opacity-0 translate-y-8">
+                    We Weave Ink <br /> <span class="italic font-light">Into Reality</span>
                 </h2>
-
-                <p class="hero-anim text-lg md:text-xl text-[#555] max-w-lg mx-auto leading-relaxed mt-6 opacity-0 translate-y-8 font-light">
+                <p class="hero-anim text-base md:text-xl text-[#555] max-w-xs md:max-w-lg mx-auto leading-relaxed mt-4 md:mt-6 opacity-0 translate-y-8 font-light">
                     A boutique publishing house for the avant-garde. Where manga meets literature in a symphony of cream and charcoal.
                 </p>
-
-                <div class="hero-anim mt-12 opacity-0 translate-y-8">
-                    <a href="#works" class="group inline-flex items-center gap-3 text-[#1a1a1a] text-lg font-medium hover:gap-6 transition-all duration-300">
-                        Explore Library <i class="ph ph-arrow-right group-hover:text-[#cf2e2e]"></i>
+                <div class="hero-anim mt-8 md:mt-12 opacity-0 translate-y-8">
+                    <a href="#works" class="group inline-flex items-center gap-3 text-ink text-base md:text-lg font-medium hover:gap-6 transition-all duration-300 p-2">
+                        Explore Library <i class="ph ph-arrow-right group-hover:text-lacquer"></i>
                     </a>
                 </div>
             </div>
         </section>
 
-        <!-- Manifesto Section -->
-        <section id="manifesto" class="min-h-screen py-32 px-6 md:px-20 bg-[#151515] text-[#F7F5F0] relative flex items-center">
-            <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
+        <!-- MANIFESTO -->
+        <section id="manifesto" class="py-20 md:py-32 px-6 md:px-20 bg-ink text-cream relative flex items-center overflow-hidden">
+            <!-- Abstract Bg decoration -->
+            <div class="absolute top-0 right-0 w-[400px] md:w-[600px] h-[400px] md:h-[600px] bg-lacquer opacity-[0.03] rounded-full blur-[80px] md:blur-[120px]"></div>
+
+            <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center relative z-10">
                 <div class="scroll-reveal">
-                    <h3 class="text-[#cf2e2e] text-sm uppercase tracking-widest mb-4">The Manifesto</h3>
-                    <h2 class="text-5xl md:text-7xl font-serif mb-10 leading-tight">
-                        It started with <br/> a single stroke.
-                    </h2>
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lacquer text-xs uppercase tracking-widest">The Manifesto</h3>
+                        <button id="lang-toggle" class="text-[10px] uppercase tracking-widest border border-white/20 px-3 py-1 rounded-full hover:bg-lacquer hover:border-lacquer transition-colors duration-300 text-white/70 hover:text-white touch-manipulation">
+                            Read in বাংলা
+                        </button>
+                    </div>
                     
-                    <div class="space-y-8 text-lg text-gray-400 font-light leading-relaxed text-justify">
-                        <p>
-                            We were writers first. Dreamers who stared at blank pages until they bled ink. Kirti Studios wasn't born in a boardroom; it was forged in late-night coffee shops and amidst piles of crumpled drafts.
-                        </p>
-                        <p>
-                            We realized that the bridge between a raw idea and a reader's heart was broken. The industry was loud, cluttered, and soulless. We wanted to build a sanctuary.
-                        </p>
-                        <p class="text-white border-l-2 border-[#cf2e2e] pl-6 italic">
-                            "To treat every panel, every sentence, and every page as a piece of fine art."
-                        </p>
+                    <div class="relative min-h-[250px] md:min-h-[300px]">
+                        <!-- English Text -->
+                        <div id="manifesto-en" class="absolute top-0 left-0 w-full transition-opacity duration-500 opacity-100 relative">
+                            <h2 class="text-3xl md:text-7xl font-serif mb-6 md:mb-8 leading-tight">It started with <br/> a single stroke.</h2>
+                            <div class="space-y-4 md:space-y-6 text-base md:text-lg text-gray-400 font-light leading-relaxed text-justify">
+                                <p>We were writers first. Dreamers who stared at blank pages until they bled ink. Kirti Studios wasn't born in a boardroom; it was forged in late-night coffee shops and amidst piles of crumpled drafts.</p>
+                                <p>We realized that the bridge between a raw idea and a reader's heart was broken. The industry was loud, cluttered, and soulless. We wanted to build a sanctuary.</p>
+                                <p class="text-white border-l-2 border-lacquer pl-6 italic">"To treat every panel, every sentence, and every page as a piece of fine art."</p>
+                            </div>
+                        </div>
+
+                        <!-- Bangla Text -->
+                        <div id="manifesto-bn" class="absolute top-0 left-0 w-full transition-opacity duration-500 opacity-0 pointer-events-none font-bengali">
+                            <h2 class="text-3xl md:text-6xl font-serif mb-6 md:mb-8 leading-tight">
+                                শুরুটা হয়েছিল <br/> একটি মাত্র আঁচড়ে।
+                            </h2>
+                            <div class="space-y-4 md:space-y-6 text-base md:text-lg text-gray-400 font-light leading-relaxed text-justify">
+                                <p>
+                                    আমরা ছিলাম লেখক। স্বপ্নদ্রষ্টা, যারা সাদা পাতার দিকে তাকিয়ে থাকতাম যতক্ষণ না কলম থেকে রক্তরুপী কালি ঝরত। কীর্তি স্টুডিওর জন্ম কোনো শীতাতপ নিয়ন্ত্রিত ঘরে হয়নি; এর জন্ম হয়েছে গভীর রাতের কফি শপে আর দুমড়ানো-মুচড়ানো খসড়া পাতার ভিড়ে।
+                                </p>
+                                <p>
+                                    আমরা বুঝেছিলাম যে একটি কাঁচা ধারণা এবং পাঠকের হৃদয়ের মাঝের সেতুটি ভেঙে গেছে। চারপাশের জগত আজ বড্ড কোলাহলপূর্ণ এবং প্রাণহীন। আমরা চেয়েছিলাম একটি নিরাপদ আশ্রয় গড়তে।
+                                </p>
+                                <p class="text-white border-l-2 border-lacquer pl-6 italic">
+                                    "প্রতিটি প্যানেল, প্রতিটি বাক্য এবং প্রতিটি পৃষ্ঠাকে চারুকলার নিদর্শন হিসেবে গড়ে তোলা।"
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 md:mt-12 flex gap-6 text-lacquer opacity-80">
+                        <i class="ph ph-feather text-3xl md:text-4xl hover:scale-110 transition-transform duration-300 cursor-pointer"></i>
+                        <i class="ph ph-book-open text-3xl md:text-4xl hover:scale-110 transition-transform duration-300 cursor-pointer"></i>
                     </div>
                 </div>
                 
-                <!-- Abstract Art SVG -->
-                <div class="scroll-reveal relative h-[500px] w-full hidden md:flex items-center justify-center">
-                    <svg viewBox="0 0 400 400" class="w-full h-full animate-[spin_60s_linear_infinite]">
-                        <defs>
-                            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#cf2e2e;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#000000;stop-opacity:0" />
-                            </linearGradient>
-                        </defs>
-                        <circle cx="200" cy="200" r="150" stroke="url(#grad1)" stroke-width="1" fill="none" />
-                        <rect x="100" y="100" width="200" height="200" stroke="#333" stroke-width="1" fill="none" transform="rotate(45 200 200)" />
-                        <path d="M200,50 L350,350 L50,350 Z" stroke="#555" stroke-width="1" fill="none" opacity="0.5" />
-                    </svg>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                         <i class="ph-fill ph-pen-nib text-6xl text-[#cf2e2e]"></i>
+                <!-- CSS Art -->
+                <div class="scroll-reveal relative h-[300px] md:h-[500px] w-full hidden md:block">
+                    <div class="absolute inset-0 border border-white/10 p-8 rotate-3 transition-transform duration-1000 hover:rotate-0">
+                        <div class="w-full h-full bg-[#0f0f0f] relative overflow-hidden flex items-center justify-center">
+                            <div class="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-lacquer to-transparent opacity-50"></div>
+                            <div class="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-lacquer to-transparent opacity-50"></div>
+                            <svg viewBox="0 0 300 300" class="absolute animate-spin-slow w-[200%] h-[200%] opacity-5">
+                                <defs>
+                                    <path id="circlePath" d="M 150, 150 m -60, 0 a 60,60 0 0,1 120,0 a 60,60 0 0,1 -120,0 " />
+                                </defs>
+                                <circle cx="150" cy="150" r="100" fill="none"/>
+                                <g>
+                                    <use xlink:href="#circlePath" fill="none"/>
+                                    <text fill="#fff" font-family="monospace" font-size="14">
+                                        <textPath xlink:href="#circlePath">ARTISTRY NARRATIVE SOUL ARTISTRY NARRATIVE SOUL</textPath>
+                                    </text>
+                                </g>
+                            </svg>
+                            <div class="w-24 h-24 md:w-32 md:h-32 border-4 border-cream rounded-full flex items-center justify-center relative z-10 shadow-[0_0_50px_rgba(207,46,46,0.3)]">
+                                <div class="w-16 h-16 md:w-24 md:h-24 bg-lacquer rounded-full mix-blend-difference animate-pulse"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Creators Section (NEW - With Journey Mind Map) -->
-        <section id="creators" class="py-32 px-6 md:px-20 bg-[#F7F5F0]">
+        <!-- CREATORS -->
+        <section id="creators" class="py-20 md:py-32 px-6 md:px-20 bg-cream">
             <div class="max-w-7xl mx-auto">
-                <div class="scroll-reveal text-center mb-20">
-                    <h3 class="text-[#cf2e2e] text-sm uppercase tracking-widest mb-2">The Architects</h3>
-                    <h2 class="text-5xl font-serif text-[#1a1a1a]">Meet The Creators</h2>
+                <div class="scroll-reveal text-center mb-16 md:mb-20">
+                    <h3 class="text-lacquer text-xs uppercase tracking-widest mb-2">The Architects</h3>
+                    <h2 class="text-4xl md:text-5xl font-serif text-ink">Meet The Creators</h2>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                     
-                    <!-- Creator 1: R. Kundu -->
-                    <div class="scroll-reveal bg-white border border-gray-100 shadow-sm hover:shadow-xl transition-shadow duration-500 relative group overflow-hidden h-[240px]" data-delay="0">
-                        <!-- Standard Content -->
-                        <div class="absolute inset-0 p-8 flex flex-col md:flex-row gap-8 items-center transition-opacity duration-300 group-hover:opacity-10">
-                            <div class="w-32 h-32 flex-shrink-0 relative">
-                                <svg viewBox="0 0 100 100" class="w-full h-full rounded-full border-2 border-[#cf2e2e] p-1">
+                    <!-- Creator 1 -->
+                    <div class="creator-card scroll-reveal bg-white border border-gray-100 shadow-sm hover:shadow-2xl md:hover:-translate-y-1 transition-all duration-500 relative group overflow-hidden min-h-[320px] rounded-sm cursor-pointer md:cursor-default" onclick="toggleCreator(this)">
+                        <div class="absolute inset-0 p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 items-center z-10 pointer-events-none">
+                            <div class="w-24 h-24 md:w-32 md:h-32 flex-shrink-0 relative">
+                                <svg viewBox="0 0 100 100" class="w-full h-full rounded-full border-2 border-lacquer p-1">
                                     <rect width="100" height="100" fill="#f0f0f0" rx="50"/>
                                     <path d="M30 70 Q50 90 70 70" stroke="#1a1a1a" stroke-width="3" fill="none"/>
                                     <circle cx="35" cy="45" r="5" fill="#1a1a1a"/>
@@ -301,127 +319,78 @@
                                 </svg>
                             </div>
                             <div class="text-center md:text-left">
-                                <h4 class="text-2xl font-serif font-bold">R. Kundu</h4>
-                                <p class="text-[#cf2e2e] text-sm uppercase tracking-wider mb-4">Lead Writer & Visionary</p>
-                                <p class="text-gray-500 text-sm leading-relaxed">
-                                    A master of dialogue and silence. Weaving narratives that explore the human condition through fantastical lenses.
-                                </p>
+                                <h4 class="text-xl md:text-2xl font-serif font-bold">R. Kundu</h4>
+                                <p class="text-lacquer text-xs uppercase tracking-wider mb-2 md:mb-4">Lead Writer & Visionary</p>
+                                <p class="text-gray-500 text-sm leading-relaxed">A master of dialogue and silence. Weaving narratives that explore the human condition.</p>
+                                <p class="md:hidden text-[10px] text-lacquer mt-4 uppercase tracking-widest font-bold opacity-50">Tap to reveal journey</p>
                             </div>
                         </div>
-
+                        
                         <!-- Mind Map Overlay -->
-                        <div class="absolute inset-0 bg-[#F7F5F0]/95 backdrop-blur-sm z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center p-8 pointer-events-none group-hover:pointer-events-auto">
+                        <div class="mm-overlay absolute inset-0 bg-cream/95 backdrop-blur-sm flex items-center justify-center p-6 md:p-8 z-20">
                             <div class="w-full max-w-md relative flex flex-col justify-center h-full">
-                                <h5 class="text-[#cf2e2e] uppercase text-xs tracking-widest text-center mb-6 absolute top-0 w-full">The Journey</h5>
-                                
-                                <!-- Timeline Spine -->
+                                <h5 class="text-lacquer uppercase text-[10px] tracking-widest text-center mb-6 absolute top-4 w-full">The Journey</h5>
                                 <div class="absolute left-[19px] top-12 bottom-4 w-[2px] bg-gray-200 origin-top">
-                                     <div class="journey-line h-full bg-[#cf2e2e] w-full scale-y-0 origin-top transition-transform duration-[1.5s] ease-in-out"></div>
+                                    <div class="mm-line h-full bg-lacquer w-full"></div>
                                 </div>
-
-                                <!-- Node 1 -->
-                                <div class="journey-node-1 relative pl-12 mb-4 opacity-0 translate-y-4 transition-all duration-500">
-                                    <div class="absolute left-1 top-1 w-8 h-8 flex items-center justify-center bg-white border border-[#cf2e2e] rounded-full z-10 shadow-sm">
-                                        <div class="w-2 h-2 bg-[#cf2e2e] rounded-full"></div>
-                                    </div>
-                                    <div class="flex justify-between items-baseline border-b border-gray-200 pb-1">
-                                        <span class="font-bold font-serif text-[#1a1a1a]">The Spark</span>
-                                        <span class="text-xs text-gray-400 font-mono">2015</span>
-                                    </div>
-                                    <p class="text-xs text-gray-500 mt-1">Literature Student & Poet</p>
+                                <div class="mm-node relative pl-12 mb-4">
+                                    <div class="absolute left-1 top-1 w-8 h-8 flex items-center justify-center bg-white border border-lacquer rounded-full z-10"><div class="w-2 h-2 bg-lacquer rounded-full"></div></div>
+                                    <div class="flex justify-between items-baseline border-b border-gray-200 pb-1"><span class="font-bold font-serif text-sm">The Spark</span><span class="text-[10px] text-gray-400 font-mono">2015</span></div>
+                                    <p class="text-[10px] text-gray-500 mt-1">Literature Student & Poet</p>
                                 </div>
-
-                                <!-- Node 2 -->
-                                <div class="journey-node-2 relative pl-12 mb-4 opacity-0 translate-y-4 transition-all duration-500">
-                                    <div class="absolute left-1 top-1 w-8 h-8 flex items-center justify-center bg-white border border-[#cf2e2e] rounded-full z-10 shadow-sm">
-                                        <div class="w-2 h-2 bg-[#cf2e2e] rounded-full"></div>
-                                    </div>
-                                    <div class="flex justify-between items-baseline border-b border-gray-200 pb-1">
-                                        <span class="font-bold font-serif text-[#1a1a1a]">First Ink</span>
-                                        <span class="text-xs text-gray-400 font-mono">2018</span>
-                                    </div>
-                                    <p class="text-xs text-gray-500 mt-1">Published Anthology Author</p>
+                                <div class="mm-node relative pl-12 mb-4">
+                                    <div class="absolute left-1 top-1 w-8 h-8 flex items-center justify-center bg-white border border-lacquer rounded-full z-10"><div class="w-2 h-2 bg-lacquer rounded-full"></div></div>
+                                    <div class="flex justify-between items-baseline border-b border-gray-200 pb-1"><span class="font-bold font-serif text-sm">First Ink</span><span class="text-[10px] text-gray-400 font-mono">2018</span></div>
+                                    <p class="text-[10px] text-gray-500 mt-1">Published Anthology Author</p>
                                 </div>
-
-                                <!-- Node 3 -->
-                                <div class="journey-node-3 relative pl-12 opacity-0 translate-y-4 transition-all duration-500">
-                                    <div class="absolute left-1 top-1 w-8 h-8 flex items-center justify-center bg-[#cf2e2e] border border-[#cf2e2e] rounded-full z-10 shadow-sm">
-                                        <div class="w-2 h-2 bg-white rounded-full"></div>
-                                    </div>
-                                    <div class="flex justify-between items-baseline border-b border-gray-200 pb-1">
-                                        <span class="font-bold font-serif text-[#1a1a1a]">The Vision</span>
-                                        <span class="text-xs text-gray-400 font-mono">2024</span>
-                                    </div>
-                                    <p class="text-xs text-gray-500 mt-1">Founded Kirti Studios</p>
+                                <div class="mm-node relative pl-12">
+                                    <div class="absolute left-1 top-1 w-8 h-8 flex items-center justify-center bg-lacquer border border-lacquer rounded-full z-10"><div class="w-2 h-2 bg-white rounded-full"></div></div>
+                                    <div class="flex justify-between items-baseline border-b border-gray-200 pb-1"><span class="font-bold font-serif text-sm">The Vision</span><span class="text-[10px] text-gray-400 font-mono">2024</span></div>
+                                    <p class="text-[10px] text-gray-500 mt-1">Founded Kirti Studios</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Creator 2: S. Biswas -->
-                    <div class="scroll-reveal bg-white border border-gray-100 shadow-sm hover:shadow-xl transition-shadow duration-500 relative group overflow-hidden h-[240px]" data-delay="0.1">
-                        <!-- Standard Content -->
-                        <div class="absolute inset-0 p-8 flex flex-col md:flex-row gap-8 items-center transition-opacity duration-300 group-hover:opacity-10">
-                            <div class="w-32 h-32 flex-shrink-0 relative">
-                                <svg viewBox="0 0 100 100" class="w-full h-full rounded-full border-2 border-[#1a1a1a] p-1">
+                    <!-- Creator 2 -->
+                    <div class="creator-card scroll-reveal bg-white border border-gray-100 shadow-sm hover:shadow-2xl md:hover:-translate-y-1 transition-all duration-500 relative group overflow-hidden min-h-[320px] rounded-sm cursor-pointer md:cursor-default" onclick="toggleCreator(this)" data-delay="0.1">
+                        <div class="absolute inset-0 p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-8 items-center z-10 pointer-events-none">
+                            <div class="w-24 h-24 md:w-32 md:h-32 flex-shrink-0 relative">
+                                <svg viewBox="0 0 100 100" class="w-full h-full rounded-full border-2 border-ink p-1">
                                     <rect width="100" height="100" fill="#333" rx="50"/>
                                     <path d="M20 80 L80 80 L50 30 Z" fill="none" stroke="#fff" stroke-width="2"/>
                                     <circle cx="50" cy="50" r="10" fill="#cf2e2e"/>
                                 </svg>
                             </div>
                             <div class="text-center md:text-left">
-                                <h4 class="text-2xl font-serif font-bold">S. Biswas</h4>
-                                <p class="text-[#cf2e2e] text-sm uppercase tracking-wider mb-4">Art Director</p>
-                                <p class="text-gray-500 text-sm leading-relaxed">
-                                    The ink to the paper. Specializing in high-contrast visuals and dynamic paneling that breaks the fourth wall.
-                                </p>
+                                <h4 class="text-xl md:text-2xl font-serif font-bold">S. Biswas</h4>
+                                <p class="text-lacquer text-xs uppercase tracking-wider mb-2 md:mb-4">Art Director</p>
+                                <p class="text-gray-500 text-sm leading-relaxed">The ink to the paper. Specializing in high-contrast visuals and dynamic paneling.</p>
+                                <p class="md:hidden text-[10px] text-lacquer mt-4 uppercase tracking-widest font-bold opacity-50">Tap to reveal journey</p>
                             </div>
                         </div>
-
+                        
                         <!-- Mind Map Overlay -->
-                        <div class="absolute inset-0 bg-[#F7F5F0]/95 backdrop-blur-sm z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center p-8 pointer-events-none group-hover:pointer-events-auto">
+                        <div class="mm-overlay absolute inset-0 bg-cream/95 backdrop-blur-sm flex items-center justify-center p-6 md:p-8 z-20">
                             <div class="w-full max-w-md relative flex flex-col justify-center h-full">
-                                <h5 class="text-[#cf2e2e] uppercase text-xs tracking-widest text-center mb-6 absolute top-0 w-full">The Journey</h5>
-                                
-                                <!-- Timeline Spine -->
+                                <h5 class="text-lacquer uppercase text-[10px] tracking-widest text-center mb-6 absolute top-4 w-full">The Journey</h5>
                                 <div class="absolute left-[19px] top-12 bottom-4 w-[2px] bg-gray-200 origin-top">
-                                     <div class="journey-line h-full bg-[#cf2e2e] w-full scale-y-0 origin-top transition-transform duration-[1.5s] ease-in-out"></div>
+                                    <div class="mm-line h-full bg-lacquer w-full"></div>
                                 </div>
-
-                                <!-- Node 1 -->
-                                <div class="journey-node-1 relative pl-12 mb-4 opacity-0 translate-y-4 transition-all duration-500">
-                                    <div class="absolute left-1 top-1 w-8 h-8 flex items-center justify-center bg-white border border-[#cf2e2e] rounded-full z-10 shadow-sm">
-                                        <div class="w-2 h-2 bg-[#cf2e2e] rounded-full"></div>
-                                    </div>
-                                    <div class="flex justify-between items-baseline border-b border-gray-200 pb-1">
-                                        <span class="font-bold font-serif text-[#1a1a1a]">The Canvas</span>
-                                        <span class="text-xs text-gray-400 font-mono">2016</span>
-                                    </div>
-                                    <p class="text-xs text-gray-500 mt-1">Fine Arts Degree</p>
+                                <div class="mm-node relative pl-12 mb-4">
+                                    <div class="absolute left-1 top-1 w-8 h-8 flex items-center justify-center bg-white border border-lacquer rounded-full z-10"><div class="w-2 h-2 bg-lacquer rounded-full"></div></div>
+                                    <div class="flex justify-between items-baseline border-b border-gray-200 pb-1"><span class="font-bold font-serif text-sm">The Canvas</span><span class="text-[10px] text-gray-400 font-mono">2016</span></div>
+                                    <p class="text-[10px] text-gray-500 mt-1">Fine Arts Degree</p>
                                 </div>
-
-                                <!-- Node 2 -->
-                                <div class="journey-node-2 relative pl-12 mb-4 opacity-0 translate-y-4 transition-all duration-500">
-                                    <div class="absolute left-1 top-1 w-8 h-8 flex items-center justify-center bg-white border border-[#cf2e2e] rounded-full z-10 shadow-sm">
-                                        <div class="w-2 h-2 bg-[#cf2e2e] rounded-full"></div>
-                                    </div>
-                                    <div class="flex justify-between items-baseline border-b border-gray-200 pb-1">
-                                        <span class="font-bold font-serif text-[#1a1a1a]">The Concept</span>
-                                        <span class="text-xs text-gray-400 font-mono">2019</span>
-                                    </div>
-                                    <p class="text-xs text-gray-500 mt-1">Indie Game Concept Artist</p>
+                                <div class="mm-node relative pl-12 mb-4">
+                                    <div class="absolute left-1 top-1 w-8 h-8 flex items-center justify-center bg-white border border-lacquer rounded-full z-10"><div class="w-2 h-2 bg-lacquer rounded-full"></div></div>
+                                    <div class="flex justify-between items-baseline border-b border-gray-200 pb-1"><span class="font-bold font-serif text-sm">The Concept</span><span class="text-[10px] text-gray-400 font-mono">2019</span></div>
+                                    <p class="text-[10px] text-gray-500 mt-1">Indie Game Concept Artist</p>
                                 </div>
-
-                                <!-- Node 3 -->
-                                <div class="journey-node-3 relative pl-12 opacity-0 translate-y-4 transition-all duration-500">
-                                    <div class="absolute left-1 top-1 w-8 h-8 flex items-center justify-center bg-[#cf2e2e] border border-[#cf2e2e] rounded-full z-10 shadow-sm">
-                                        <div class="w-2 h-2 bg-white rounded-full"></div>
-                                    </div>
-                                    <div class="flex justify-between items-baseline border-b border-gray-200 pb-1">
-                                        <span class="font-bold font-serif text-[#1a1a1a]">The Craft</span>
-                                        <span class="text-xs text-gray-400 font-mono">2024</span>
-                                    </div>
-                                    <p class="text-xs text-gray-500 mt-1">Art Director at Kirti</p>
+                                <div class="mm-node relative pl-12">
+                                    <div class="absolute left-1 top-1 w-8 h-8 flex items-center justify-center bg-lacquer border border-lacquer rounded-full z-10"><div class="w-2 h-2 bg-white rounded-full"></div></div>
+                                    <div class="flex justify-between items-baseline border-b border-gray-200 pb-1"><span class="font-bold font-serif text-sm">The Craft</span><span class="text-[10px] text-gray-400 font-mono">2024</span></div>
+                                    <p class="text-[10px] text-gray-500 mt-1">Art Director at Kirti</p>
                                 </div>
                             </div>
                         </div>
@@ -430,20 +399,20 @@
             </div>
         </section>
 
-        <!-- Works Section (With Hover Briefings) -->
-        <section id="works" class="py-32 px-6 md:px-20 bg-[#F7F5F0] border-t border-gray-200">
+        <!-- WORKS SECTION -->
+        <section id="works" class="py-20 md:py-32 px-6 md:px-20 bg-cream border-t border-gray-200">
             <div class="max-w-7xl mx-auto">
-                <div class="scroll-reveal flex flex-col md:flex-row justify-between items-end mb-20">
-                    <div>
-                        <h3 class="text-[#cf2e2e] text-sm uppercase tracking-widest mb-2">Our Library</h3>
-                        <h2 class="text-5xl font-serif text-[#1a1a1a]">Current Releases</h2>
+                <div class="scroll-reveal flex flex-col md:flex-row justify-between items-end mb-16 md:mb-20">
+                    <div class="mb-4 md:mb-0">
+                        <h3 class="text-lacquer text-sm uppercase tracking-widest mb-2">Our Library</h3>
+                        <h2 class="text-4xl md:text-5xl font-serif text-ink">Current Releases</h2>
                     </div>
-                    <a href="#store" class="hidden md:block text-[#1a1a1a] hover:text-[#cf2e2e] transition-colors pb-2 border-b border-black hover:border-[#cf2e2e]">View Full Catalog</a>
+                    <a href="#store" class="hidden md:block text-ink hover:text-lacquer transition-colors pb-2 border-b border-black hover:border-lacquer">View Full Catalog</a>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
                     
-                    <!-- Work 1 -->
+                    <!-- Work 1: GIVEN -->
                     <div class="scroll-reveal group cursor-pointer relative" data-delay="0">
                         <div class="relative aspect-[2/3] bg-[#222] rounded-sm mb-6 overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-500">
                             <!-- SVG Cover -->
@@ -453,26 +422,23 @@
                                 <circle cx="200" cy="150" r="80" fill="#fff" />
                                 <text x="20" y="415" fill="#fff" font-family="serif" font-size="40" font-weight="bold">GIVEN</text>
                             </svg>
-
-                            <!-- Hover Briefing Overlay -->
-                            <div class="hover-reveal-content absolute inset-0 bg-[#cf2e2e]/95 flex flex-col justify-center items-center p-8 text-center text-white">
-                                <h4 class="font-serif text-2xl font-bold mb-4">Briefing</h4>
-                                <p class="text-sm leading-relaxed font-light mb-6">
-                                    In a feudal Japan that never was, a ronin without a voice must speak through his steel. A tale of honor, silence, and the cost of redemption.
-                                </p>
-                                <button class="add-to-cart px-6 py-2 border border-white rounded-full hover:bg-white hover:text-[#cf2e2e] transition-colors" data-title="GIVEN" data-price="18.00">
-                                    Add to Cart - $18.00
-                                </button>
+                            <!-- CIRCULAR REVEAL OVERLAY -->
+                            <div class="reveal-circle absolute inset-0 bg-lacquer/95 flex flex-col justify-center items-center p-8 text-center text-white">
+                                <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                                    <h4 class="font-serif text-2xl font-bold mb-4">Briefing</h4>
+                                    <p class="text-sm leading-relaxed font-light mb-6">In a feudal Japan that never was, a ronin without a voice must speak through his steel.</p>
+                                    <button class="add-to-cart bg-white text-lacquer px-6 py-2 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-black hover:text-white transition-colors touch-manipulation"
+                                        data-title="GIVEN" data-price="18.00">Add to Cart - $18.00</button>
+                                </div>
                             </div>
                         </div>
-                        <h4 class="text-xl font-serif font-bold text-[#1a1a1a]">GIVEN</h4>
+                        <h4 class="text-xl font-serif font-bold text-ink">GIVEN</h4>
                         <p class="text-xs uppercase tracking-wider text-gray-500">Manga Vol. 1</p>
                     </div>
 
-                    <!-- Work 2 -->
+                    <!-- Work 2: 25TH HOUR -->
                     <div class="scroll-reveal group cursor-pointer relative" data-delay="0.1">
                         <div class="relative aspect-[2/3] bg-[#e8e6e1] rounded-sm mb-6 overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-500">
-                             <!-- SVG Cover -->
                             <svg viewBox="0 0 300 450" class="w-full h-full absolute inset-0">
                                 <rect width="300" height="450" fill="#f0efe9" />
                                 <circle cx="150" cy="225" r="100" stroke="#000" stroke-width="2" fill="none" />
@@ -480,342 +446,535 @@
                                 <text x="150" y="400" text-anchor="middle" fill="#000" font-family="sans-serif" font-size="24" letter-spacing="4">25TH</text>
                                 <text x="150" y="430" text-anchor="middle" fill="#555" font-family="serif" font-size="14">HOUR</text>
                             </svg>
-
-                            <!-- Hover Briefing Overlay -->
-                            <div class="hover-reveal-content absolute inset-0 bg-[#1a1a1a]/95 flex flex-col justify-center items-center p-8 text-center text-white">
-                                <h4 class="font-serif text-2xl font-bold mb-4">Briefing</h4>
-                                <p class="text-sm leading-relaxed font-light mb-6">
-                                    A kingdom forgotten by time. When the bells of Aethelgard ring, the dead do not rise—they remember. A gothic fantasy novel.
-                                </p>
-                                <button class="add-to-cart px-6 py-2 border border-white rounded-full hover:bg-white hover:text-black transition-colors" data-title="25TH HOUR" data-price="24.50">
-                                    Add to Cart - $24.50
-                                </button>
+                            <!-- CIRCULAR REVEAL OVERLAY -->
+                            <div class="reveal-circle absolute inset-0 bg-ink/95 flex flex-col justify-center items-center p-8 text-center text-white">
+                                <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                                    <h4 class="font-serif text-2xl font-bold mb-4">Briefing</h4>
+                                    <p class="text-sm leading-relaxed font-light mb-6">A kingdom forgotten by time. When the bells of Aethelgard ring, the dead do not rise.</p>
+                                    <button class="add-to-cart bg-white text-ink px-6 py-2 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-lacquer hover:text-white transition-colors touch-manipulation"
+                                        data-title="25TH HOUR" data-price="24.50">Add to Cart - $24.50</button>
+                                </div>
                             </div>
                         </div>
-                        <h4 class="text-xl font-serif font-bold text-[#1a1a1a]">25TH HOUR</h4>
+                        <h4 class="text-xl font-serif font-bold text-ink">25TH HOUR</h4>
                         <p class="text-xs uppercase tracking-wider text-gray-500">Novel</p>
                     </div>
 
-                    <!-- Work 3 -->
+                    <!-- Work 3: E.O.E -->
                     <div class="scroll-reveal group cursor-pointer relative" data-delay="0.2">
                         <div class="relative aspect-[2/3] bg-[#0f172a] rounded-sm mb-6 overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-500">
-                             <!-- SVG Cover -->
                              <svg viewBox="0 0 300 450" class="w-full h-full absolute inset-0">
                                 <rect width="300" height="450" fill="#0f172a" />
                                 <path d="M0 450 L300 300 L300 450 Z" fill="#3b82f6" opacity="0.5" />
                                 <path d="M50 50 L100 100 L150 50 M150 50 L200 100 L250 50" stroke="#fff" stroke-width="2" fill="none" />
                                 <text x="20" y="400" fill="#fff" font-family="sans-serif" font-size="40" font-weight="900" opacity="0.9">E.O.E</text>
                             </svg>
-
-                            <!-- Hover Briefing Overlay -->
-                            <div class="hover-reveal-content absolute inset-0 bg-[#3b82f6]/95 flex flex-col justify-center items-center p-8 text-center text-white">
-                                <h4 class="font-serif text-2xl font-bold mb-4">Briefing</h4>
-                                <p class="text-sm leading-relaxed font-light mb-6">
-                                    2099. The rain never stops, and neither does the data. A detective investigates a murder where the victim was already dead.
-                                </p>
-                                <button class="add-to-cart px-6 py-2 border border-white rounded-full hover:bg-white hover:text-blue-600 transition-colors" data-title="E.O.E" data-price="22.00">
-                                    Add to Cart - $22.00
-                                </button>
+                            <!-- CIRCULAR REVEAL OVERLAY -->
+                            <div class="reveal-circle absolute inset-0 bg-blue-600/95 flex flex-col justify-center items-center p-8 text-center text-white">
+                                <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                                    <h4 class="font-serif text-2xl font-bold mb-4">Briefing</h4>
+                                    <p class="text-sm leading-relaxed font-light mb-6">2099. The rain never stops. A detective investigates a murder where the victim was already dead.</p>
+                                    <button class="add-to-cart bg-white text-blue-600 px-6 py-2 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-black hover:text-white transition-colors touch-manipulation"
+                                        data-title="E.O.E" data-price="22.00">Add to Cart - $22.00</button>
+                                </div>
                             </div>
                         </div>
-                        <h4 class="text-xl font-serif font-bold text-[#1a1a1a]">E.O.E</h4>
+                        <h4 class="text-xl font-serif font-bold text-ink">E.O.E</h4>
                         <p class="text-xs uppercase tracking-wider text-gray-500">Graphic Novel</p>
                     </div>
-
                 </div>
             </div>
         </section>
 
-        <!-- Store Section -->
-        <section id="store" class="py-32 px-6 md:px-20 bg-[#151515] text-[#F7F5F0]">
-            <div class="max-w-7xl mx-auto">
-                <div class="scroll-reveal text-center mb-16">
-                    <h2 class="text-4xl md:text-6xl font-serif mb-4">The Atelier Shop</h2>
-                    <p class="text-gray-400 max-w-xl mx-auto">Limited edition prints, signed copies, and exclusive merchandise directly from the creators.</p>
+        <!-- REVIEWS -->
+        <section id="reviews" class="py-20 md:py-24 px-6 md:px-20 bg-ink text-cream relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-lacquer to-transparent opacity-20"></div>
+            <div class="max-w-6xl mx-auto text-center">
+                <div class="flex justify-between items-end mb-16 scroll-reveal">
+                    <h3 class="text-lacquer text-xs uppercase tracking-widest">Echoes From Readers</h3>
+                    <button id="shuffle-reviews" class="text-xs uppercase tracking-widest border border-white/20 px-4 py-2 rounded-full hover:bg-lacquer hover:border-lacquer transition-colors flex items-center gap-2 touch-manipulation">
+                        <i class="ph-bold ph-shuffle"></i> Shuffle
+                    </button>
+                </div>
+                
+                <div id="reviews-container" class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                    <!-- Default Static Content -->
+                    <div class="group">
+                        <i class="ph-fill ph-quotes text-4xl text-lacquer opacity-50 mb-6 group-hover:scale-110 transition-transform duration-300"></i>
+                        <p class="font-serif text-xl italic mb-6">"Kirti Studios doesn't just print books; they print feelings. The artistry is unmatched in the industry."</p>
+                        <p class="text-xs uppercase tracking-widest text-gray-500">— Art & Soul Magazine</p>
+                    </div>
+                    <div class="group">
+                        <i class="ph-fill ph-quotes text-4xl text-lacquer opacity-50 mb-6 group-hover:scale-110 transition-transform duration-300"></i>
+                        <p class="font-serif text-xl italic mb-6">"GIVEN is a masterpiece. The silence between the panels speaks louder than any dialogue I've read."</p>
+                        <p class="text-xs uppercase tracking-widest text-gray-500">— A. Roy, Critic</p>
+                    </div>
+                    <div class="group">
+                        <i class="ph-fill ph-quotes text-4xl text-lacquer opacity-50 mb-6 group-hover:scale-110 transition-transform duration-300"></i>
+                        <p class="font-serif text-xl italic mb-6">"A return to the golden age of storytelling, wrapped in a modern, avant-garde aesthetic."</p>
+                        <p class="text-xs uppercase tracking-widest text-gray-500">— The Bengal Post</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- EVENTS -->
+        <section id="events" class="py-20 md:py-32 px-6 md:px-20 bg-cream">
+            <div class="max-w-5xl mx-auto">
+                <div class="scroll-reveal flex justify-between items-baseline mb-16 border-b border-ink pb-4">
+                    <h2 class="text-4xl font-serif text-ink">Gatherings</h2>
+                    <span class="text-xs uppercase tracking-widest text-gray-500">Upcoming Appearances</span>
                 </div>
 
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <!-- Merch Item 1 -->
-                    <div class="scroll-reveal bg-[#1f1f1f] aspect-square flex flex-col items-center justify-center p-4 group hover:bg-[#252525] transition-colors border border-white/5 relative overflow-hidden" data-delay="0">
-                        <i class="ph ph-t-shirt text-4xl text-[#cf2e2e] opacity-50 group-hover:scale-110 transition-transform"></i>
-                        <h4 class="mt-4 text-xs uppercase tracking-widest z-10">Studio Tee</h4>
-                        <div class="absolute inset-0 bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span class="text-sm">Coming Soon</span>
+                <div class="space-y-8">
+                    <!-- Event 1 -->
+                    <div class="scroll-reveal group flex flex-col md:flex-row justify-between items-center py-8 border-b border-gray-200 hover:border-lacquer transition-colors cursor-pointer">
+                        <div class="flex items-center gap-8 w-full md:w-auto">
+                            <span class="text-6xl font-serif text-gray-200 group-hover:text-lacquer transition-colors">01</span>
+                            <div>
+                                <h4 class="text-2xl font-bold text-ink">Kolkata Lit Meet</h4>
+                                <p class="text-sm text-gray-500 mt-1">Book Signing & Panel Discussion</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-8 mt-4 md:mt-0 w-full md:w-auto justify-between md:justify-end">
+                            <span class="text-sm font-mono text-gray-400">DEC 12 — 14</span>
+                            <button class="w-10 h-10 rounded-full border border-ink flex items-center justify-center group-hover:bg-lacquer group-hover:border-lacquer group-hover:text-white transition-all">
+                                <i class="ph ph-arrow-up-right"></i>
+                            </button>
                         </div>
                     </div>
-                    <!-- Merch Item 2 -->
-                    <div class="scroll-reveal bg-[#1f1f1f] aspect-square flex flex-col items-center justify-center p-4 group hover:bg-[#252525] transition-colors border border-white/5 relative overflow-hidden" data-delay="0.1">
-                         <i class="ph ph-coffee text-4xl text-[#cf2e2e] opacity-50 group-hover:scale-110 transition-transform"></i>
-                        <h4 class="mt-4 text-xs uppercase tracking-widest z-10">Writer's Mug</h4>
-                         <div class="absolute inset-0 bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span class="text-sm">Coming Soon</span>
+
+                    <!-- Event 2 -->
+                    <div class="scroll-reveal group flex flex-col md:flex-row justify-between items-center py-8 border-b border-gray-200 hover:border-lacquer transition-colors cursor-pointer" data-delay="0.1">
+                        <div class="flex items-center gap-8 w-full md:w-auto">
+                            <span class="text-6xl font-serif text-gray-200 group-hover:text-lacquer transition-colors">02</span>
+                            <div>
+                                <h4 class="text-2xl font-bold text-ink">Winter Comicon</h4>
+                                <p class="text-sm text-gray-500 mt-1">Exclusive 'E.O.E' Merch Drop</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-8 mt-4 md:mt-0 w-full md:w-auto justify-between md:justify-end">
+                            <span class="text-sm font-mono text-gray-400">JAN 05 — 07</span>
+                            <button class="w-10 h-10 rounded-full border border-ink flex items-center justify-center group-hover:bg-lacquer group-hover:border-lacquer group-hover:text-white transition-all">
+                                <i class="ph ph-arrow-up-right"></i>
+                            </button>
                         </div>
                     </div>
-                    <!-- Merch Item 3 -->
-                    <div class="scroll-reveal bg-[#1f1f1f] aspect-square flex flex-col items-center justify-center p-4 group hover:bg-[#252525] transition-colors border border-white/5 relative overflow-hidden" data-delay="0.2">
-                         <i class="ph ph-paint-brush text-4xl text-[#cf2e2e] opacity-50 group-hover:scale-110 transition-transform"></i>
-                        <h4 class="mt-4 text-xs uppercase tracking-widest z-10">Art Prints</h4>
-                         <div class="absolute inset-0 bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span class="text-sm">Coming Soon</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- COLLAPSIBLE STORE SECTION -->
+        <section id="store" class="py-16 px-6 md:px-20 bg-ink text-cream border-t border-white/10">
+            <div class="max-w-7xl mx-auto">
+                <button id="store-toggle" class="w-full flex justify-between items-center py-8 group border-b border-white/5 touch-manipulation">
+                    <h2 class="text-3xl md:text-6xl font-serif group-hover:text-lacquer transition-colors text-left">The Atelier Shop</h2>
+                    <i id="store-icon" class="ph ph-caret-down text-3xl md:text-4xl transition-transform duration-500"></i>
+                </button>
+                
+                <div id="store-content" class="collapsible-content">
+                    <div class="pt-12 pb-16">
+                        <p class="text-gray-400 max-w-xl mb-12">Limited edition prints, signed copies, and exclusive merchandise directly from the creators.</p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <!-- Merch Items -->
+                            <div class="bg-[#1f1f1f] aspect-square flex flex-col items-center justify-center p-4 group hover:bg-[#252525] transition-colors border border-white/5 relative overflow-hidden">
+                                <i class="ph ph-t-shirt text-4xl text-lacquer opacity-50 group-hover:scale-110 transition-transform"></i>
+                                <h4 class="mt-4 text-xs uppercase tracking-widest z-10">Studio Tee</h4>
+                                <div class="absolute inset-0 bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><span class="text-sm">Coming Soon</span></div>
+                            </div>
+                            <div class="bg-[#1f1f1f] aspect-square flex flex-col items-center justify-center p-4 group hover:bg-[#252525] transition-colors border border-white/5 relative overflow-hidden">
+                                <i class="ph ph-coffee text-4xl text-lacquer opacity-50 group-hover:scale-110 transition-transform"></i>
+                                <h4 class="mt-4 text-xs uppercase tracking-widest z-10">Writer's Mug</h4>
+                                <div class="absolute inset-0 bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><span class="text-sm">Coming Soon</span></div>
+                            </div>
+                            <div class="bg-[#1f1f1f] aspect-square flex flex-col items-center justify-center p-4 group hover:bg-[#252525] transition-colors border border-white/5 relative overflow-hidden">
+                                <i class="ph ph-paint-brush text-4xl text-lacquer opacity-50 group-hover:scale-110 transition-transform"></i>
+                                <h4 class="mt-4 text-xs uppercase tracking-widest z-10">Art Prints</h4>
+                                <div class="absolute inset-0 bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><span class="text-sm">Coming Soon</span></div>
+                            </div>
+                            <div class="bg-[#1f1f1f] aspect-square flex flex-col items-center justify-center p-4 group hover:bg-[#252525] transition-colors border border-white/5 relative overflow-hidden">
+                                <i class="ph ph-sticker text-4xl text-lacquer opacity-50 group-hover:scale-110 transition-transform"></i>
+                                <h4 class="mt-4 text-xs uppercase tracking-widest z-10">Sticker Pack</h4>
+                                <div class="absolute inset-0 bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><span class="text-sm">Coming Soon</span></div>
+                            </div>
                         </div>
                     </div>
-                    <!-- Merch Item 4 -->
-                    <div class="scroll-reveal bg-[#1f1f1f] aspect-square flex flex-col items-center justify-center p-4 group hover:bg-[#252525] transition-colors border border-white/5 relative overflow-hidden" data-delay="0.3">
-                         <i class="ph ph-sticker text-4xl text-[#cf2e2e] opacity-50 group-hover:scale-110 transition-transform"></i>
-                        <h4 class="mt-4 text-xs uppercase tracking-widest z-10">Sticker Pack</h4>
-                         <div class="absolute inset-0 bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span class="text-sm">Coming Soon</span>
-                        </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- COLLAPSIBLE NEWSLETTER -->
+        <section id="newsletter" class="px-6 md:px-20 bg-lacquer text-white">
+            <div class="max-w-4xl mx-auto">
+                <button id="newsletter-toggle" class="w-full flex justify-between items-center py-12 group touch-manipulation">
+                    <h2 class="text-2xl md:text-5xl font-serif group-hover:opacity-80 transition-opacity text-left">Join The Inner Circle</h2>
+                    <i id="newsletter-icon" class="ph ph-plus text-2xl md:text-3xl transition-transform duration-500"></i>
+                </button>
+
+                <div id="newsletter-content" class="collapsible-content">
+                    <div class="pb-16">
+                        <p class="text-white/80 mb-10 max-w-lg">Subscribe to our newsletter for early access to new releases, exclusive creator interviews, and studio updates.</p>
+                        <form class="flex flex-col md:flex-row gap-4 max-w-md" onsubmit="event.preventDefault(); this.reset();">
+                            <input type="email" placeholder="Your Email Address" class="flex-1 bg-white/10 border border-white/30 rounded-full px-6 py-4 placeholder-white/50 text-white focus:outline-none focus:bg-white/20 transition-colors">
+                            <button type="submit" class="bg-white text-lacquer px-8 py-4 rounded-full font-bold uppercase tracking-widest hover:bg-ink hover:text-white transition-colors touch-manipulation">
+                                Subscribe
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-[#F7F5F0] text-[#1a1a1a] py-20 px-6 border-t border-[#1a1a1a]/10">
+    <!-- FOOTER -->
+    <footer class="bg-cream text-ink py-20 px-6 border-t border-ink/10">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
             <div class="text-center md:text-left">
                 <h2 class="text-2xl font-serif font-bold tracking-tight mb-2">KIRTI STUDIOS</h2>
                 <p class="text-sm text-gray-500">&copy; 2024. All Rights Reserved.</p>
             </div>
-            
             <div class="flex gap-8 text-sm font-medium uppercase tracking-wider">
-                <a href="#" class="hover:text-[#cf2e2e] transition-colors">Instagram</a>
-                <a href="#" class="hover:text-[#cf2e2e] transition-colors">Twitter</a>
-                <a href="#" class="hover:text-[#cf2e2e] transition-colors">Email</a>
+                <a href="#" class="hover:text-lacquer transition-colors">Instagram</a>
+                <a href="#" class="hover:text-lacquer transition-colors">Twitter</a>
+                <a href="#" class="hover:text-lacquer transition-colors">Email</a>
             </div>
         </div>
-        
         <div class="w-full text-center mt-20">
            <p class="text-[10px] uppercase text-gray-400 tracking-[0.5em]">Artistry • Narrative • Soul</p>
         </div>
     </footer>
 
-    <!-- JAVASCRIPT LOGIC -->
+    <!-- INTERACTION LOGIC -->
     <script>
-        // Register GSAP ScrollTrigger
         gsap.registerPlugin(ScrollTrigger);
 
-        // --- Loader Animation ---
-        window.addEventListener('load', () => {
-            const tl = gsap.timeline();
-
-            tl.to("#loader-bar", {
-                width: "100%",
-                duration: 1.5,
-                ease: "power2.inOut"
-            })
-            .to("#loader-text", {
-                opacity: 1,
-                duration: 0.5,
-                y: -10
-            }, "-=0.5")
-            .to("#loader", {
-                y: "-100%",
-                duration: 1.2,
-                ease: "power4.inOut",
-                delay: 0.5
-            })
-            .to(".hero-anim", {
-                y: 0,
-                opacity: 1,
-                duration: 1,
-                stagger: 0.2,
-                ease: "power3.out"
-            }, "-=0.5");
-        });
-
-        // --- Scroll Animations (ScrollTrigger) ---
-        const revealElements = document.querySelectorAll('.scroll-reveal');
-        
-        revealElements.forEach(el => {
-            const delay = el.dataset.delay || 0; // Read delay from HTML
-            
-            gsap.fromTo(el, 
-                { y: 50, autoAlpha: 0 }, // Using autoAlpha (opacity + visibility) to prevent FOUC
-                {
-                    y: 0, 
-                    autoAlpha: 1, 
-                    duration: 1, 
-                    delay: delay, // Apply the delay
-                    ease: "power3.out",
-                    scrollTrigger: {
-                        trigger: el,
-                        start: "top 85%", // Start when top of element hits 85% of viewport
-                    }
-                }
-            );
-        });
-
-        // --- Custom Cursor ---
-        const cursorDot = document.querySelector('.cursor-dot');
-        const cursorOutline = document.querySelector('.cursor-outline');
+        // --- CUSTOM CURSOR ---
+        const dot = document.getElementById('cursor-dot');
+        const outline = document.getElementById('cursor-outline');
+        let cursorVisible = false;
 
         window.addEventListener('mousemove', (e) => {
-            const posX = e.clientX;
-            const posY = e.clientY;
+            if (!cursorVisible && window.matchMedia('(hover: hover)').matches) {
+                if(dot) dot.style.opacity = '1';
+                if(outline) outline.style.opacity = '1';
+                cursorVisible = true;
+            }
 
-            // Dot follows instantly
-            cursorDot.style.left = `${posX}px`;
-            cursorDot.style.top = `${posY}px`;
+            const x = e.clientX, y = e.clientY;
+            if(dot) { dot.style.left = `${x}px`; dot.style.top = `${y}px`; }
+            if(outline) {
+                gsap.to(outline, { x: x, y: y, duration: 0.2, ease: "power2.out", 
+                    onUpdate: () => outline.style.transform = `translate(-50%, -50%) translate(${outline._gsap.x}px, ${outline._gsap.y}px)`
+                });
+            }
+        });
 
-            // Outline follows with delay (GSAP for smoothness)
-            gsap.to(cursorOutline, {
-                x: posX,
-                y: posY,
-                duration: 0.15,
-                ease: "power2.out",
-                // Manually handle centering since GSAP transform overwrites CSS transform
-                onUpdate: function() {
-                    this.targets()[0].style.transform = `translate(-50%, -50%) translate(${this.targets()[0]._gsap.x}px, ${this.targets()[0]._gsap.y}px)`;
+        document.querySelectorAll('a, button, .group').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                if(outline && window.matchMedia('(hover: hover)').matches) {
+                    outline.style.width = '60px'; outline.style.height = '60px';
+                    outline.style.backgroundColor = 'rgba(207, 46, 46, 0.1)';
+                }
+            });
+            el.addEventListener('mouseleave', () => {
+                if(outline && window.matchMedia('(hover: hover)').matches) {
+                    outline.style.width = '40px'; outline.style.height = '40px';
+                    outline.style.backgroundColor = 'transparent';
                 }
             });
         });
-        
-        // Link Hover Effect on Cursor
-        const links = document.querySelectorAll('a, button');
-        links.forEach(link => {
-            link.addEventListener('mouseenter', () => {
-                cursorOutline.style.transform = "translate(-50%, -50%) scale(1.5)";
-                cursorOutline.style.backgroundColor = "rgba(207, 46, 46, 0.1)";
+
+        // --- LENIS SMOOTH SCROLL ---
+        if (typeof Lenis !== 'undefined') {
+            const lenis = new Lenis({
+                duration: 1.2,
+                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                direction: 'vertical',
+                gestureDirection: 'vertical',
+                smooth: true,
+                mouseMultiplier: 1,
+                smoothTouch: false,
+                touchMultiplier: 2,
             });
-            link.addEventListener('mouseleave', () => {
-                cursorOutline.style.transform = "translate(-50%, -50%) scale(1)";
-                cursorOutline.style.backgroundColor = "transparent";
+
+            function raf(time) {
+                lenis.raf(time);
+                requestAnimationFrame(raf);
+            }
+            requestAnimationFrame(raf);
+            window.lenis = lenis; 
+        } else {
+            console.warn("Lenis not loaded");
+        }
+
+        // --- LOADER SEQUENCE ---
+        window.addEventListener('load', () => {
+            const tl = gsap.timeline();
+            const loaderText = document.getElementById('loader-text');
+
+            tl.to("#loader-bar", { width: "100%", duration: 2.0, ease: "power2.inOut" })
+              .to("#loader-text", { opacity: 1, duration: 0.5, y: 0 }, "-=2.0")
+              // Eng -> Ben
+              .to("#loader-text", { opacity: 0, duration: 0.3, onComplete: () => {
+                  if(loaderText) {
+                      loaderText.innerText = "কীর্তি স্টুডিও";
+                      loaderText.classList.add("font-bengali");
+                      loaderText.classList.remove("font-serif");
+                  }
+              }}, "-=1.0")
+              .to("#loader-text", { opacity: 1, duration: 0.3 })
+              .to("#loader-text", { opacity: 1, duration: 0.8 }) 
+              // Ben -> Eng
+              .to("#loader-text", { opacity: 0, duration: 0.3, onComplete: () => {
+                  if(loaderText) {
+                      loaderText.innerText = "KIRTI STUDIOS";
+                      loaderText.classList.remove("font-bengali");
+                      loaderText.classList.add("font-serif");
+                  }
+              }})
+              .to("#loader-text", { opacity: 1, duration: 0.3 })
+              .to("#loader-sub", { opacity: 1, duration: 0.5 }, "-=0.3")
+              .to("#loader", { y: "-100%", duration: 1.2, ease: "power4.inOut", delay: 0.2 })
+              .to(".hero-anim", { y: 0, opacity: 1, duration: 1, stagger: 0.2, ease: "power3.out" }, "-=0.5");
+        });
+
+        // --- REVEAL ON SCROLL ---
+        gsap.set(".scroll-reveal", { y: 60, opacity: 0 }); 
+        
+        document.querySelectorAll('.scroll-reveal').forEach(el => {
+            const delay = el.dataset.delay || 0;
+            gsap.to(el, {
+                y: 0, opacity: 1, duration: 1.2, delay: parseFloat(delay), ease: "power3.out",
+                scrollTrigger: { trigger: el, start: "top 85%" }
             });
         });
 
+        // --- LANGUAGE TOGGLE ---
+        const langToggle = document.getElementById('lang-toggle');
+        const manifestoEn = document.getElementById('manifesto-en');
+        const manifestoBn = document.getElementById('manifesto-bn');
+        let isBengali = false;
 
-        // --- Navigation Logic ---
-        const menuBtn = document.getElementById('menu-btn');
-        const menuClose = document.getElementById('menu-close');
+        if(langToggle) {
+            langToggle.addEventListener('click', () => {
+                const timeline = gsap.timeline();
+                if(isBengali) {
+                    timeline.to(manifestoBn, { opacity: 0, duration: 0.3, onComplete: () => {
+                        manifestoBn.style.pointerEvents = 'none';
+                        manifestoEn.style.pointerEvents = 'auto';
+                        isBengali = false;
+                        langToggle.innerText = "Read in বাংলা";
+                    }}).to(manifestoEn, { opacity: 1, duration: 0.3 });
+                } else {
+                    timeline.to(manifestoEn, { opacity: 0, duration: 0.3, onComplete: () => {
+                        manifestoEn.style.pointerEvents = 'none';
+                        manifestoBn.style.pointerEvents = 'auto';
+                        isBengali = true;
+                        langToggle.innerText = "Read in English";
+                    }}).to(manifestoBn, { opacity: 1, duration: 0.3 });
+                }
+            });
+        }
+
+        // --- COLLAPSIBLE SECTIONS ---
+        function setupCollapsible(triggerId, contentId, iconId, isNewsletter = false, defaultOpen = false) {
+            const btn = document.getElementById(triggerId);
+            const content = document.getElementById(contentId);
+            const icon = document.getElementById(iconId);
+            let isOpen = defaultOpen;
+
+            if(!isOpen) {
+                gsap.set(content, { height: 0, opacity: 0 });
+            } else {
+                gsap.set(content, { height: 'auto', opacity: 1 });
+                gsap.set(icon, { rotation: isNewsletter ? 45 : 180 });
+            }
+
+            btn.addEventListener('click', () => {
+                isOpen = !isOpen;
+                if(isOpen) {
+                    gsap.fromTo(content, { height: 0, opacity: 0 }, { height: 'auto', opacity: 1, duration: 0.6, ease: "power3.inOut" });
+                    gsap.to(icon, { rotation: isNewsletter ? 45 : 180, duration: 0.4 });
+                } else {
+                    gsap.to(content, { height: 0, opacity: 0, duration: 0.6, ease: "power3.inOut" });
+                    gsap.to(icon, { rotation: 0, duration: 0.4 });
+                }
+            });
+        }
+        setupCollapsible('store-toggle', 'store-content', 'store-icon', false, false);
+        setupCollapsible('newsletter-toggle', 'newsletter-content', 'newsletter-icon', true, false);
+
+        // --- CREATOR SECTION FIX (MOBILE TAP) ---
+        const creatorTimelines = new Map();
+
+        document.querySelectorAll('.creator-card').forEach((card, index) => {
+            const overlay = card.querySelector('.mm-overlay');
+            const line = card.querySelector('.mm-line');
+            const nodes = card.querySelectorAll('.mm-node');
+            
+            const tl = gsap.timeline({ paused: true });
+            
+            tl.to(overlay, { autoAlpha: 1, duration: 0.4, ease: "power3.out" })
+              .to(line, { scaleY: 1, duration: 0.8, ease: "power3.inOut" }, "-=0.2")
+              .fromTo(nodes, 
+                { y: 20, autoAlpha: 0 },
+                { y: 0, autoAlpha: 1, duration: 0.6, stagger: 0.1, ease: "power3.out" }, 
+                "-=0.6"
+              );
+            
+            creatorTimelines.set(card, { tl, isOpen: false });
+
+            // Desktop Hover
+            if (window.matchMedia('(hover: hover)').matches) {
+                card.addEventListener('mouseenter', () => tl.play());
+                card.addEventListener('mouseleave', () => tl.reverse());
+            }
+        });
+
+        window.toggleCreator = function(card) {
+            if (window.matchMedia('(hover: none)').matches || window.innerWidth < 768) {
+                const data = creatorTimelines.get(card);
+                if (data) {
+                    if (data.isOpen) {
+                        data.tl.reverse();
+                    } else {
+                        data.tl.play();
+                    }
+                    data.isOpen = !data.isOpen;
+                }
+            }
+        }
+
+        // --- DYNAMIC REVIEWS ---
+        const reviewsData = [
+            { text: "Kirti Studios doesn't just print books; they print feelings.", author: "Art & Soul Magazine" },
+            { text: "GIVEN is a masterpiece. The silence speaks louder than any dialogue.", author: "A. Roy, Critic" },
+            { text: "A return to the golden age of storytelling.", author: "The Bengal Post" },
+            { text: "Visually stunning. E.O.E changed how I view graphic novels.", author: "Design Weekly" },
+            { text: "A true labor of love.", author: "Reader's Digest India" },
+            { text: "Collectors items, truly.", author: "Manga Corner" },
+            { text: "Dark, moody, and impossibly beautiful.", author: "Lit Review" },
+            { text: "Finally, a studio that respects the medium.", author: "Culture Vulture" },
+            { text: "From paper to ink, everything screams premium.", author: "Bookworm Daily" }
+        ];
+
+        function renderReviews() {
+            const container = document.getElementById('reviews-container');
+            const shuffled = [...reviewsData].sort(() => 0.5 - Math.random()).slice(0, 3);
+            
+            gsap.to(container, { opacity: 0, y: 10, duration: 0.3, onComplete: () => {
+                container.innerHTML = '';
+                shuffled.forEach((r) => {
+                    container.innerHTML += `
+                        <div class="group">
+                            <i class="ph-fill ph-quotes text-3xl md:text-4xl text-lacquer opacity-50 mb-6 group-hover:scale-110 transition-transform duration-300"></i>
+                            <p class="font-serif text-lg md:text-xl italic mb-6">"${r.text}"</p>
+                            <p class="text-xs uppercase tracking-widest text-gray-500">— ${r.author}</p>
+                        </div>
+                    `;
+                });
+                gsap.to(container, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" });
+            }});
+        }
+        document.getElementById('shuffle-reviews').addEventListener('click', renderReviews);
+
+        // --- UI TOGGLES ---
         const menuOverlay = document.getElementById('menu-overlay');
-        const menuLinks = document.querySelectorAll('.menu-link');
+        const cartDrawer = document.getElementById('cart-drawer');
 
         function toggleMenu() {
             const isClosed = menuOverlay.classList.contains('translate-y-full');
-            if (isClosed) {
+            const links = document.querySelectorAll('.menu-link');
+            const footer = document.querySelector('.menu-footer');
+            
+            if(isClosed) {
+                if(window.lenis) window.lenis.stop();
+                document.body.style.overflow = 'hidden';
                 menuOverlay.classList.remove('translate-y-full');
-                menuOverlay.classList.add('translate-y-0');
+                const tl = gsap.timeline();
+                tl.to(menuOverlay, { y: '0%', duration: 0.8, ease: "expo.inOut" })
+                  .fromTo(links, { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, stagger: 0.1, ease: "power2.out" }, "-=0.4")
+                  .to(footer, { opacity: 1, duration: 0.5 }, "-=0.2");
             } else {
-                menuOverlay.classList.add('translate-y-full');
-                menuOverlay.classList.remove('translate-y-0');
+                if(window.lenis) window.lenis.start();
+                document.body.style.overflow = '';
+                gsap.to(menuOverlay, { y: '100%', duration: 0.8, ease: "expo.inOut", onComplete: () => {
+                    menuOverlay.classList.add('translate-y-full');
+                    gsap.set(links, { opacity: 0, y: 50 });
+                    gsap.set(footer, { opacity: 0 });
+                }});
             }
         }
-
-        menuBtn.addEventListener('click', toggleMenu);
-        menuClose.addEventListener('click', toggleMenu);
-        
-        menuLinks.forEach(link => {
-            link.addEventListener('click', toggleMenu);
-        });
-
-        // --- Cart Drawer & Logic ---
-        const cartBtn = document.getElementById('cart-btn');
-        const cartDrawer = document.getElementById('cart-drawer');
-        const cartClose = document.getElementById('cart-close');
-        const cartItemsContainer = document.getElementById('cart-items-container');
-        const cartEmptyState = document.getElementById('cart-empty-state');
-        const cartTotalEl = document.getElementById('cart-total');
-        const cartBadge = document.getElementById('cart-badge');
-        const addToCartBtns = document.querySelectorAll('.add-to-cart');
-        
-        let cartCount = 0;
-        let currentCartTotal = 0;
 
         function toggleCart() {
             const isClosed = cartDrawer.classList.contains('translate-x-full');
-            if (isClosed) {
+            if(isClosed) {
+                if(window.lenis) window.lenis.stop();
+                document.body.style.overflow = 'hidden';
+                gsap.to(cartDrawer, { x: '0%', duration: 0.6, ease: "power3.out" });
                 cartDrawer.classList.remove('translate-x-full');
-                cartDrawer.classList.add('translate-x-0');
             } else {
-                cartDrawer.classList.add('translate-x-full');
-                cartDrawer.classList.remove('translate-x-0');
+                if(window.lenis) window.lenis.start();
+                document.body.style.overflow = '';
+                gsap.to(cartDrawer, { x: '100%', duration: 0.6, ease: "power3.in", onComplete: () => cartDrawer.classList.add('translate-x-full') });
             }
         }
 
-        cartBtn.addEventListener('click', toggleCart);
-        cartClose.addEventListener('click', toggleCart);
+        document.getElementById('menu-btn').onclick = toggleMenu;
+        document.getElementById('menu-close').onclick = toggleMenu;
+        document.querySelectorAll('.menu-link').forEach(l => l.onclick = toggleMenu);
+        document.getElementById('cart-btn').onclick = toggleCart;
+        document.getElementById('cart-close').onclick = toggleCart;
 
-        addToCartBtns.forEach(btn => {
+        // --- CART LOGIC ---
+        let cart = [];
+        const cartItemsDiv = document.getElementById('cart-items');
+        const cartBadge = document.getElementById('cart-badge');
+        const cartTotalEl = document.getElementById('cart-total');
+        const emptyState = document.getElementById('cart-empty');
+
+        document.querySelectorAll('.add-to-cart').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                e.stopPropagation(); // Prevent navigation if on link
+                e.stopPropagation();
                 const title = btn.dataset.title;
                 const price = parseFloat(btn.dataset.price);
-
-                // Update Logic
-                cartCount++;
-                currentCartTotal += price;
-                
-                // Update UI - Badge
-                cartBadge.innerText = cartCount;
-                cartBadge.classList.remove('hidden');
-
-                // Update UI - Total
-                cartTotalEl.innerText = '$' + currentCartTotal.toFixed(2);
-
-                // Update UI - Drawer Items
-                if (cartEmptyState) {
-                    cartEmptyState.style.display = 'none';
-                }
-
-                // Add item with data-price attribute for removal calculation
-                const itemHTML = `
-                    <div class="cart-item flex justify-between items-center border-b border-gray-100 pb-4 cart-item-enter" data-price="${price}">
-                        <div>
-                            <h4 class="font-medium font-serif">${title}</h4>
-                            <p class="text-sm text-gray-500">$${price.toFixed(2)}</p>
-                        </div>
-                        <button class="remove-item-btn text-xs text-[#cf2e2e] hover:text-red-700 uppercase tracking-wider font-bold">Remove</button>
-                    </div>
-                `;
-                cartItemsContainer.insertAdjacentHTML('afterbegin', itemHTML);
-                
-                // Button Feedback
-                const originalText = btn.innerText;
-                const originalBg = btn.style.backgroundColor;
-                const originalColor = btn.style.color;
-
-                btn.innerText = "Added!";
-                btn.style.backgroundColor = "#fff";
-                btn.style.color = "#cf2e2e";
-                
-                setTimeout(() => {
-                    btn.innerText = originalText;
-                    btn.style.backgroundColor = originalBg;
-                    btn.style.color = originalColor;
-                }, 1000);
+                cart.push({ title, price });
+                updateCartUI();
+                if(cartDrawer.classList.contains('translate-x-full')) toggleCart();
             });
         });
 
-        // --- Cart Removal Logic (Event Delegation) ---
-        cartItemsContainer.addEventListener('click', (e) => {
-            if (e.target.classList.contains('remove-item-btn')) {
-                const itemRow = e.target.closest('.cart-item');
-                const price = parseFloat(itemRow.dataset.price);
+        function updateCartUI() {
+            const cartCount = cart.length;
+            const cartTotal = cart.reduce((acc, item) => acc + item.price, 0);
 
-                // Update logic
-                cartCount--;
-                currentCartTotal -= price;
-                
-                // Clamp total to prevent negative float errors
-                if (currentCartTotal < 0) currentCartTotal = 0;
-
-                // Update UI
+            if(cartCount > 0) {
                 cartBadge.innerText = cartCount;
-                cartTotalEl.innerText = '$' + currentCartTotal.toFixed(2);
-                
-                if (cartCount === 0) {
-                    cartBadge.classList.add('hidden');
-                    cartEmptyState.style.display = 'flex';
-                }
-
-                // Remove element
-                itemRow.remove();
+                cartBadge.classList.remove('hidden');
+                emptyState.style.display = 'none';
+            } else {
+                cartBadge.classList.add('hidden');
+                emptyState.style.display = 'flex';
             }
-        });
 
+            cartTotalEl.innerText = '$' + cartTotal.toFixed(2);
+            Array.from(cartItemsDiv.children).forEach(child => { if(child.id !== 'cart-empty') child.remove(); });
+
+            cart.forEach((item, index) => {
+                const el = document.createElement('div');
+                el.className = 'flex justify-between items-center border-b border-gray-100 pb-4 cart-item-enter';
+                el.innerHTML = `
+                    <div><h4 class="font-medium font-serif">${item.title}</h4><p class="text-sm text-gray-500">$${item.price.toFixed(2)}</p></div>
+                    <button onclick="removeItem(${index})" class="text-xs text-lacquer hover:text-red-700 uppercase tracking-wider font-bold p-2 touch-manipulation">Remove</button>
+                `;
+                cartItemsDiv.prepend(el);
+            });
+        }
+
+        window.removeItem = (index) => {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
     </script>
 </body>
 </html>
