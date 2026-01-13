@@ -52,6 +52,27 @@
         :root { --cursor-size: 8px; --cursor-outline-size: 40px; }
         body { background-color: #F7F5F0; color: #1a1a1a; cursor: none; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
         
+        /* Custom Main Scrollbar - "Invisible" until interaction */
+        ::-webkit-scrollbar {
+            width: 8px;
+            background-color: transparent;
+        }
+        ::-webkit-scrollbar-track {
+            background-color: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: transparent; /* Invisible by default */
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        /* Show scrollbar thumb on hover of the window/scrollbar area if supported, or rely on browser behavior */
+        body:hover::-webkit-scrollbar-thumb {
+            background-color: rgba(26, 26, 26, 0.2); /* Subtle ink color on hover */
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #cf2e2e; /* Lacquer on direct grab */
+        }
+
         /* Custom Cursor */
         #cursor-dot, #cursor-outline { 
             position: fixed; 
@@ -94,11 +115,13 @@
             will-change: clip-path;
             transition: clip-path 1.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
+        /* Desktop Hover */
         @media (hover: hover) {
             .group:hover .reveal-circle { clip-path: circle(150% at 50% 50%); }
         }
-        @media (hover: none) {
-            .reveal-circle .add-to-cart { opacity: 1; pointer-events: auto; }
+        /* Mobile Active State (triggered via JS) */
+        .group.is-active .reveal-circle {
+            clip-path: circle(150% at 50% 50%);
         }
 
         /* Collapsible Sections */
@@ -108,7 +131,7 @@
         @keyframes fadeInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
         .cart-item-enter { animation: fadeInRight 0.4s ease-out forwards; }
 
-        /* Custom Scrollbar */
+        /* Custom Scrollbar for Menu Overlay */
         #menu-overlay { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; } 
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #0f0f0f; }
@@ -399,7 +422,7 @@
             </div>
         </section>
 
-        <!-- WORKS SECTION -->
+        <!-- WORKS SECTION (With Spotlight Reveal) -->
         <section id="works" class="py-20 md:py-32 px-6 md:px-20 bg-cream border-t border-gray-200">
             <div class="max-w-7xl mx-auto">
                 <div class="scroll-reveal flex flex-col md:flex-row justify-between items-end mb-16 md:mb-20">
@@ -413,7 +436,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
                     
                     <!-- Work 1: GIVEN -->
-                    <div class="scroll-reveal group cursor-pointer relative" data-delay="0">
+                    <div class="group cursor-pointer relative scroll-reveal" onclick="toggleProduct(this)" data-delay="0">
                         <div class="relative aspect-[2/3] bg-[#222] rounded-sm mb-6 overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-500">
                             <!-- SVG Cover -->
                             <svg viewBox="0 0 300 450" class="w-full h-full absolute inset-0">
@@ -428,16 +451,17 @@
                                     <h4 class="font-serif text-2xl font-bold mb-4">Briefing</h4>
                                     <p class="text-sm leading-relaxed font-light mb-6">In a feudal Japan that never was, a ronin without a voice must speak through his steel.</p>
                                     <button class="add-to-cart bg-white text-lacquer px-6 py-2 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-black hover:text-white transition-colors touch-manipulation"
-                                        data-title="GIVEN" data-price="18.00">Add to Cart - $18.00</button>
+                                        onclick="event.stopPropagation(); addToCartFn(this)" data-title="GIVEN" data-price="18.00">Add to Cart - $18.00</button>
                                 </div>
                             </div>
                         </div>
                         <h4 class="text-xl font-serif font-bold text-ink">GIVEN</h4>
                         <p class="text-xs uppercase tracking-wider text-gray-500">Manga Vol. 1</p>
+                        <p class="md:hidden text-[10px] text-lacquer mt-2 uppercase tracking-widest font-bold opacity-50">Tap for Briefing</p>
                     </div>
 
                     <!-- Work 2: 25TH HOUR -->
-                    <div class="scroll-reveal group cursor-pointer relative" data-delay="0.1">
+                    <div class="group cursor-pointer relative scroll-reveal" onclick="toggleProduct(this)" data-delay="0.1">
                         <div class="relative aspect-[2/3] bg-[#e8e6e1] rounded-sm mb-6 overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-500">
                             <svg viewBox="0 0 300 450" class="w-full h-full absolute inset-0">
                                 <rect width="300" height="450" fill="#f0efe9" />
@@ -452,16 +476,17 @@
                                     <h4 class="font-serif text-2xl font-bold mb-4">Briefing</h4>
                                     <p class="text-sm leading-relaxed font-light mb-6">A kingdom forgotten by time. When the bells of Aethelgard ring, the dead do not rise.</p>
                                     <button class="add-to-cart bg-white text-ink px-6 py-2 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-lacquer hover:text-white transition-colors touch-manipulation"
-                                        data-title="25TH HOUR" data-price="24.50">Add to Cart - $24.50</button>
+                                        onclick="event.stopPropagation(); addToCartFn(this)" data-title="25TH HOUR" data-price="24.50">Add to Cart - $24.50</button>
                                 </div>
                             </div>
                         </div>
                         <h4 class="text-xl font-serif font-bold text-ink">25TH HOUR</h4>
                         <p class="text-xs uppercase tracking-wider text-gray-500">Novel</p>
+                        <p class="md:hidden text-[10px] text-lacquer mt-2 uppercase tracking-widest font-bold opacity-50">Tap for Briefing</p>
                     </div>
 
                     <!-- Work 3: E.O.E -->
-                    <div class="scroll-reveal group cursor-pointer relative" data-delay="0.2">
+                    <div class="group cursor-pointer relative scroll-reveal" onclick="toggleProduct(this)" data-delay="0.2">
                         <div class="relative aspect-[2/3] bg-[#0f172a] rounded-sm mb-6 overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-500">
                              <svg viewBox="0 0 300 450" class="w-full h-full absolute inset-0">
                                 <rect width="300" height="450" fill="#0f172a" />
@@ -475,18 +500,19 @@
                                     <h4 class="font-serif text-2xl font-bold mb-4">Briefing</h4>
                                     <p class="text-sm leading-relaxed font-light mb-6">2099. The rain never stops. A detective investigates a murder where the victim was already dead.</p>
                                     <button class="add-to-cart bg-white text-blue-600 px-6 py-2 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-black hover:text-white transition-colors touch-manipulation"
-                                        data-title="E.O.E" data-price="22.00">Add to Cart - $22.00</button>
+                                        onclick="event.stopPropagation(); addToCartFn(this)" data-title="E.O.E" data-price="22.00">Add to Cart - $22.00</button>
                                 </div>
                             </div>
                         </div>
                         <h4 class="text-xl font-serif font-bold text-ink">E.O.E</h4>
                         <p class="text-xs uppercase tracking-wider text-gray-500">Graphic Novel</p>
+                        <p class="md:hidden text-[10px] text-lacquer mt-2 uppercase tracking-widest font-bold opacity-50">Tap for Briefing</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- REVIEWS -->
+        <!-- REVIEWS (Dynamic Rotation) -->
         <section id="reviews" class="py-20 md:py-24 px-6 md:px-20 bg-ink text-cream relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-lacquer to-transparent opacity-20"></div>
             <div class="max-w-6xl mx-auto text-center">
@@ -693,7 +719,7 @@
                 gestureDirection: 'vertical',
                 smooth: true,
                 mouseMultiplier: 1,
-                smoothTouch: false,
+                smoothTouch: false, // Default false for native touch scroll feeling
                 touchMultiplier: 2,
             });
 
@@ -707,7 +733,7 @@
             console.warn("Lenis not loaded");
         }
 
-        // --- LOADER SEQUENCE ---
+        // --- LOADER SEQUENCE (UPDATED FOR LANGUAGE FLIP) ---
         window.addEventListener('load', () => {
             const tl = gsap.timeline();
             const loaderText = document.getElementById('loader-text');
@@ -845,6 +871,15 @@
             }
         }
 
+        // --- PRODUCT TOGGLE (MOBILE TAP) ---
+        // Mimic hover on mobile tap for products
+        window.toggleProduct = function(card) {
+            // Check if touch or small screen
+            if (window.matchMedia('(hover: none)').matches || window.innerWidth < 768) {
+                card.classList.toggle('is-active');
+            }
+        }
+
         // --- DYNAMIC REVIEWS ---
         const reviewsData = [
             { text: "Kirti Studios doesn't just print books; they print feelings.", author: "Art & Soul Magazine" },
@@ -933,16 +968,26 @@
         const cartTotalEl = document.getElementById('cart-total');
         const emptyState = document.getElementById('cart-empty');
 
-        document.querySelectorAll('.add-to-cart').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const title = btn.dataset.title;
-                const price = parseFloat(btn.dataset.price);
-                cart.push({ title, price });
-                updateCartUI();
-                if(cartDrawer.classList.contains('translate-x-full')) toggleCart();
-            });
-        });
+        // Global function for addToCart so inline onclicks can find it
+        window.addToCartFn = function(btn) {
+            const title = btn.dataset.title;
+            const price = parseFloat(btn.dataset.price);
+            cart.push({ title, price });
+            updateCartUI();
+            if(cartDrawer.classList.contains('translate-x-full')) toggleCart();
+            
+            // Visual feedback
+            const origText = btn.innerText;
+            btn.innerText = "Added";
+            btn.classList.add("bg-ink", "text-white");
+            btn.classList.remove("bg-white", "text-lacquer", "text-ink", "text-blue-600");
+            setTimeout(() => { 
+                btn.innerText = origText; 
+                btn.classList.remove("bg-ink", "text-white");
+                // Simplified reset logic
+                btn.classList.add("bg-white", "text-lacquer"); 
+            }, 1000);
+        }
 
         function updateCartUI() {
             const cartCount = cart.length;
