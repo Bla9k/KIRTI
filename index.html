@@ -50,7 +50,46 @@
     <!-- 4. CUSTOM STYLES -->
     <style>
         :root { --cursor-size: 8px; --cursor-outline-size: 40px; }
-        body { background-color: #F7F5F0; color: #1a1a1a; cursor: none; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        
+        body { 
+            background-color: #F7F5F0; 
+            color: #1a1a1a; 
+            overflow-x: hidden; 
+            -webkit-font-smoothing: antialiased; 
+        }
+
+        /* --- CURSOR FIX START --- */
+        /* Only hide cursor on devices with a mouse (fine pointer) */
+        @media (hover: hover) and (pointer: fine) {
+            * {
+                cursor: none !important; /* Force hide system cursor on EVERYTHING */
+            }
+            body {
+                cursor: none;
+            }
+        }
+        
+        /* Custom Cursor Elements */
+        #cursor-dot, #cursor-outline { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            transform: translate(-50%, -50%); 
+            border-radius: 50%; 
+            pointer-events: none; /* Crucial: clicks pass through to elements below */
+            z-index: 9999; 
+            opacity: 0; /* Hidden initially, revealed by JS */
+            transition: opacity 0.3s ease;
+        }
+        #cursor-dot { width: var(--cursor-size); height: var(--cursor-size); background-color: #cf2e2e; }
+        #cursor-outline { width: var(--cursor-outline-size); height: var(--cursor-outline-size); border: 1px solid #cf2e2e; transition: width 0.2s, height 0.2s, background-color 0.2s, opacity 0.3s ease; }
+        
+        /* Disable custom cursor completely on touch devices */
+        @media (hover: none) and (pointer: coarse) {
+            #cursor-dot, #cursor-outline { display: none !important; }
+            * { cursor: auto !important; }
+        }
+        /* --- CURSOR FIX END --- */
         
         /* Custom Main Scrollbar - "Invisible" until interaction */
         ::-webkit-scrollbar {
@@ -65,35 +104,14 @@
             border-radius: 4px;
             transition: background-color 0.3s;
         }
-        /* Show scrollbar thumb on hover of the window/scrollbar area if supported, or rely on browser behavior */
+        /* Show scrollbar thumb on hover of the window/scrollbar area if supported */
         body:hover::-webkit-scrollbar-thumb {
-            background-color: rgba(26, 26, 26, 0.2); /* Subtle ink color on hover */
+            background-color: rgba(26, 26, 26, 0.2); 
         }
         ::-webkit-scrollbar-thumb:hover {
-            background-color: #cf2e2e; /* Lacquer on direct grab */
+            background-color: #cf2e2e; 
         }
 
-        /* Custom Cursor */
-        #cursor-dot, #cursor-outline { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            transform: translate(-50%, -50%); 
-            border-radius: 50%; 
-            pointer-events: none; 
-            z-index: 9999; 
-            opacity: 0; /* Hidden initially, revealed by JS */
-            transition: opacity 0.3s ease;
-        }
-        #cursor-dot { width: var(--cursor-size); height: var(--cursor-size); background-color: #cf2e2e; }
-        #cursor-outline { width: var(--cursor-outline-size); height: var(--cursor-outline-size); border: 1px solid #cf2e2e; transition: width 0.2s, height 0.2s, background-color 0.2s, opacity 0.3s ease; }
-        
-        /* Disable custom cursor on touch devices */
-        @media (hover: none) and (pointer: coarse) {
-            #cursor-dot, #cursor-outline { display: none !important; }
-            body { cursor: auto; }
-        }
-        
         /* Grain Texture */
         .grain-overlay {
             position: fixed; inset: 0; pointer-events: none; z-index: 90; opacity: 0.035; mix-blend-mode: multiply;
@@ -270,17 +288,17 @@
                         <!-- Bangla Text -->
                         <div id="manifesto-bn" class="absolute top-0 left-0 w-full transition-opacity duration-500 opacity-0 pointer-events-none font-bengali">
                             <h2 class="text-3xl md:text-6xl font-serif mb-6 md:mb-8 leading-tight">
-                                শুরুটা হয়েছিল <br/> একটি মাত্র আঁচড়ে।
+                                শুরুটা হয়েছিল <br/> একটি মাত্র আঁচড়ে।
                             </h2>
                             <div class="space-y-4 md:space-y-6 text-base md:text-lg text-gray-400 font-light leading-relaxed text-justify">
                                 <p>
-                                    আমরা ছিলাম লেখক। স্বপ্নদ্রষ্টা, যারা সাদা পাতার দিকে তাকিয়ে থাকতাম যতক্ষণ না কলম থেকে রক্তরুপী কালি ঝরত। কীর্তি স্টুডিওর জন্ম কোনো শীতাতপ নিয়ন্ত্রিত ঘরে হয়নি; এর জন্ম হয়েছে গভীর রাতের কফি শপে আর দুমড়ানো-মুচড়ানো খসড়া পাতার ভিড়ে।
+                                    আমরা ছিলাম লেখক। স্বপ্নদ্রষ্টা, যারা সাদা পাতার দিকে তাকিয়ে থাকতাম যতক্ষণ না কলম থেকে রক্তরুপী কালি ঝরত। কীর্তি স্টুডিওর জন্ম কোনো শীতাতপ নিয়ন্ত্রিত ঘরে হয়নি; এর জন্ম হয়েছে গভীর রাতের কফি শপে আর দুমড়ানো-মুচড়ানো খসড়া পাতার ভিড়ে।
                                 </p>
                                 <p>
-                                    আমরা বুঝেছিলাম যে একটি কাঁচা ধারণা এবং পাঠকের হৃদয়ের মাঝের সেতুটি ভেঙে গেছে। চারপাশের জগত আজ বড্ড কোলাহলপূর্ণ এবং প্রাণহীন। আমরা চেয়েছিলাম একটি নিরাপদ আশ্রয় গড়তে।
+                                    আমরা বুঝেছিলাম যে একটি কাঁচা ধারণা এবং পাঠকের হৃদয়ের মাঝের সেতুটি ভেঙে গেছে। চারপাশের জগত আজ বড্ড কোলাহলপূর্ণ এবং প্রাণহীন। আমরা চেয়েছিলাম একটি নিরাপদ আশ্রয় গড়তে।
                                 </p>
                                 <p class="text-white border-l-2 border-lacquer pl-6 italic">
-                                    "প্রতিটি প্যানেল, প্রতিটি বাক্য এবং প্রতিটি পৃষ্ঠাকে চারুকলার নিদর্শন হিসেবে গড়ে তোলা।"
+                                    "প্রতিটি প্যানেল, প্রতিটি বাক্য এবং প্রতিটি পৃষ্ঠাকে চারুকলার নিদর্শন হিসেবে গড়ে তোলা।"
                                 </p>
                             </div>
                         </div>
@@ -450,7 +468,7 @@
                                 <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
                                     <h4 class="font-serif text-2xl font-bold mb-4">Briefing</h4>
                                     <p class="text-sm leading-relaxed font-light mb-6">In a feudal Japan that never was, a ronin without a voice must speak through his steel.</p>
-                                    <button class="add-to-cart bg-white text-lacquer px-6 py-2 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-black hover:text-white transition-colors touch-manipulation"
+                                    <button class="add-to-cart bg-white text-lacquer px-6 py-2 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-black hover:text-white transition-colors touch-manipulation" 
                                         onclick="event.stopPropagation(); addToCartFn(this)" data-title="GIVEN" data-price="18.00">Add to Cart - $18.00</button>
                                 </div>
                             </div>
@@ -475,7 +493,7 @@
                                 <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
                                     <h4 class="font-serif text-2xl font-bold mb-4">Briefing</h4>
                                     <p class="text-sm leading-relaxed font-light mb-6">A kingdom forgotten by time. When the bells of Aethelgard ring, the dead do not rise.</p>
-                                    <button class="add-to-cart bg-white text-ink px-6 py-2 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-lacquer hover:text-white transition-colors touch-manipulation"
+                                    <button class="add-to-cart bg-white text-ink px-6 py-2 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-lacquer hover:text-white transition-colors touch-manipulation" 
                                         onclick="event.stopPropagation(); addToCartFn(this)" data-title="25TH HOUR" data-price="24.50">Add to Cart - $24.50</button>
                                 </div>
                             </div>
@@ -499,7 +517,7 @@
                                 <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
                                     <h4 class="font-serif text-2xl font-bold mb-4">Briefing</h4>
                                     <p class="text-sm leading-relaxed font-light mb-6">2099. The rain never stops. A detective investigates a murder where the victim was already dead.</p>
-                                    <button class="add-to-cart bg-white text-blue-600 px-6 py-2 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-black hover:text-white transition-colors touch-manipulation"
+                                    <button class="add-to-cart bg-white text-blue-600 px-6 py-2 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-black hover:text-white transition-colors touch-manipulation" 
                                         onclick="event.stopPropagation(); addToCartFn(this)" data-title="E.O.E" data-price="22.00">Add to Cart - $22.00</button>
                                 </div>
                             </div>
